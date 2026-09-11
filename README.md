@@ -33,3 +33,6 @@ Required environment variables are `MARKET_DATA_API_KEY` for the configured prov
 
 ## Quality rules
 Never fabricate prices, shares, historical data or market status. If provider data is unavailable, preserve the last verified dataset and expose the outage state.
+
+## Deployment
+Vercel is configured to deploy the `main` branch. The application is a standard Next.js App Router project and uses `npm run build` for production builds.
