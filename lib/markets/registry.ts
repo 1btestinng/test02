@@ -2,7 +2,8 @@ import {rankCompanies} from '@/lib/market';
 import {MOROCCO_CONFIG,MOROCCO_FX_USD_MAD,moroccoCompanies} from './morocco';
 import {TUNISIA_CONFIG,TUNISIA_FX_USD_TND,tunisiaCompanies} from './tunisia';
 import {ALGERIA_CONFIG,ALGERIA_FX_USD_DZD,algeriaCompanies} from './algeria';
-import {SAUDI_CONFIG,UAE_CONFIG,KUWAIT_CONFIG,QATAR_CONFIG,BAHRAIN_CONFIG,OMAN_CONFIG,FX_USD_PER_LOCAL,saudiCompanies,uaeCompanies,kuwaitCompanies,qatarCompanies,bahrainCompanies,omanCompanies} from './gulf';
+import {SAUDI_CONFIG,UAE_CONFIG,KUWAIT_CONFIG,QATAR_CONFIG,BAHRAIN_CONFIG,OMAN_CONFIG,FX_USD_PER_LOCAL,seeds,saudiCompanies,uaeCompanies,kuwaitCompanies,qatarCompanies,bahrainCompanies,omanCompanies} from './gulf';
+import {createYahooGulfProvider} from '@/lib/providers/yahoo-gulf';
 import type {MarketCompany,MarketConfig,MarketDataProvider,MarketSummary} from './types';
 
 export const EGYPT_CONFIG:MarketConfig={countryCode:'EG',countryName:'Egypt',flag:'🇪🇬',exchangeCode:'EGX',exchangeName:'Egyptian Exchange',currencyCode:'EGP',currencySymbol:'EGP',timezone:'Africa/Cairo',benchmark:'EGX 30',dataSource:'StockAnalysis EGX actively traded securities snapshot; market caps sourced directly',delay:'Delayed snapshot',lastUpdated:'2026-09-11T17:01:00+03:00'};
@@ -17,14 +18,14 @@ const tunisiaProvider:MarketDataProvider={async getCompanies(){return tunisiaCom
 const algeriaProvider:MarketDataProvider={async getCompanies(){return algeriaCompaniesSnapshot();},async getCompany(ticker){return algeriaCompaniesSnapshot().find(c=>c.ticker.toUpperCase()===ticker.toUpperCase());},async getMarketSummary(){return summarize(algeriaCompaniesSnapshot(),ALGERIA_CONFIG,ALGERIA_FX_USD_DZD,'USD/DZD market snapshot');},async getFX(){return ALGERIA_FX_USD_DZD;},async getMarketStatus(){return getMarketStatusSync('DZ');}};
 
 const staticProvider=(companies:MarketCompany[],config:MarketConfig,localPerUsd:number):MarketDataProvider=>({async getCompanies(){return companies;},async getCompany(ticker){return companies.find(c=>c.ticker.toUpperCase()===ticker.toUpperCase());},async getMarketSummary(){return summarize(companies,config,localPerUsd,`USD/${config.currencyCode} market snapshot`);},async getFX(){return localPerUsd;},async getMarketStatus(){return getMarketStatusSync(config.countryCode);}});
-const saudiProvider=staticProvider(saudiCompanies,SAUDI_CONFIG,FX_USD_PER_LOCAL.SA);
-const uaeProvider=staticProvider(uaeCompanies,UAE_CONFIG,FX_USD_PER_LOCAL.AE);
-const kuwaitProvider=staticProvider(kuwaitCompanies,KUWAIT_CONFIG,FX_USD_PER_LOCAL.KW);
-const qatarProvider=staticProvider(qatarCompanies,QATAR_CONFIG,FX_USD_PER_LOCAL.QA);
-const bahrainProvider=staticProvider(bahrainCompanies,BAHRAIN_CONFIG,FX_USD_PER_LOCAL.BH);
-const omanProvider=staticProvider(omanCompanies,OMAN_CONFIG,FX_USD_PER_LOCAL.OM);
+const saudiProvider=createYahooGulfProvider('SA',seeds.SA,SAUDI_CONFIG,FX_USD_PER_LOCAL.SA);
+const uaeProvider=createYahooGulfProvider('AE',seeds.AE,UAE_CONFIG,FX_USD_PER_LOCAL.AE);
+const kuwaitProvider=createYahooGulfProvider('KW',seeds.KW,KUWAIT_CONFIG,FX_USD_PER_LOCAL.KW);
+const qatarProvider=createYahooGulfProvider('QA',seeds.QA,QATAR_CONFIG,FX_USD_PER_LOCAL.QA);
+const bahrainProvider=createYahooGulfProvider('BH',seeds.BH,BAHRAIN_CONFIG,FX_USD_PER_LOCAL.BH);
+const omanProvider=createYahooGulfProvider('OM',seeds.OM,OMAN_CONFIG,FX_USD_PER_LOCAL.OM);
 
-function summarize(rows:MarketCompany[],config:MarketConfig,fxRate:number,fxSource:string):MarketSummary{return {count:rows.length,totalLocal:rows.reduce((s,c)=>s+(c.marketCapLocal??0),0),totalUSD:rows.reduce((s,c)=>s+(c.marketCapUSD??(c.marketCapLocal?c.marketCapLocal/fxRate:0)),0),industries:new Set(rows.map(c=>c.sector).filter(Boolean)).size,fxRate,fxSource,lastUpdated:config.lastUpdated,dataSource:config.dataSource,delay:config.delay};}
+function summarize(rows:MarketCompany[],config:MarketConfig,fxRate:number,fxSource:string):MarketSummary{return {count:rows.length,totalLocal:rows.reduce((s,c)=>s+(c.marketCapLocal??0),0),totalUSD:rows.reduce((s,c)=>s+(c.marketCapUSD??(c.marketCapLocal?c.marketCapLocal/fxRate:0)),0),industries:new Set(rows.map(c=>c.sector).filter(Boolean)).size,fxRate,fxSource,lastUpdated:rows.reduce((latest,row)=>row.timestamp&&row.timestamp>latest?row.timestamp:latest,config.lastUpdated),dataSource:config.dataSource,delay:config.delay};}
 
 export const MARKET_REGISTRY:Record<string,{config:MarketConfig;provider:MarketDataProvider}>={EG:{config:EGYPT_CONFIG,provider:egyptProvider},MA:{config:MOROCCO_CONFIG,provider:moroccoProvider},TN:{config:TUNISIA_CONFIG,provider:tunisiaProvider},DZ:{config:ALGERIA_CONFIG,provider:algeriaProvider},SA:{config:SAUDI_CONFIG,provider:saudiProvider},AE:{config:UAE_CONFIG,provider:uaeProvider},KW:{config:KUWAIT_CONFIG,provider:kuwaitProvider},QA:{config:QATAR_CONFIG,provider:qatarProvider},BH:{config:BAHRAIN_CONFIG,provider:bahrainProvider},OM:{config:OMAN_CONFIG,provider:omanProvider}};
 export function getMarket(code:string){return MARKET_REGISTRY[code.toUpperCase()]??MARKET_REGISTRY.EG;}
