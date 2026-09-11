@@ -1,6 +1,7 @@
-import type {MarketCompany,MarketConfig} from './types';
+import type {MarketConfig} from './types';
 
 type Seed=[string,string,string,number,string?];
+type GulfCode='SA'|'AE'|'KW'|'QA'|'BH'|'OM';
 
 export const SAUDI_CONFIG:MarketConfig={countryCode:'SA',countryName:'Saudi Arabia',flag:'🇸🇦',exchangeCode:'TADAWUL',exchangeName:'Saudi Exchange (Tadawul)',exchanges:[{code:'TADAWUL',name:'Saudi Exchange (Tadawul)'}],currencyCode:'SAR',currencySymbol:'SAR',timezone:'Asia/Riyadh',benchmark:'TASI',dataSource:'Curated market-cap snapshot; USD values converted using SAR/USD reference rate',delay:'Snapshot',lastUpdated:'2026-09-11T18:00:00+03:00'};
 export const UAE_CONFIG:MarketConfig={countryCode:'AE',countryName:'United Arab Emirates',flag:'🇦🇪',exchangeCode:'UAE',exchangeName:'UAE Markets (ADX / DFM)',exchanges:[{code:'ADX',name:'Abu Dhabi Securities Exchange (ADX)'},{code:'DFM',name:'Dubai Financial Market (DFM)'}],currencyCode:'AED',currencySymbol:'AED',timezone:'Asia/Dubai',benchmark:'FTSE ADX / DFMGI',dataSource:'Curated market-cap snapshot; USD values converted using AED/USD reference rate',delay:'Snapshot',lastUpdated:'2026-09-11T18:00:00+04:00'};
@@ -9,7 +10,7 @@ export const QATAR_CONFIG:MarketConfig={countryCode:'QA',countryName:'Qatar',fla
 export const BAHRAIN_CONFIG:MarketConfig={countryCode:'BH',countryName:'Bahrain',flag:'🇧🇭',exchangeCode:'BAHRAIN',exchangeName:'Bahrain Bourse',exchanges:[{code:'BAHRAIN',name:'Bahrain Bourse'}],currencyCode:'BHD',currencySymbol:'BHD',timezone:'Asia/Bahrain',benchmark:'Bahrain All Share Index',dataSource:'Curated market-cap snapshot; USD values converted using BHD/USD reference rate',delay:'Snapshot',lastUpdated:'2026-09-11T18:00:00+03:00'};
 export const OMAN_CONFIG:MarketConfig={countryCode:'OM',countryName:'Oman',flag:'🇴🇲',exchangeCode:'MSX',exchangeName:'Muscat Stock Exchange',exchanges:[{code:'MSX',name:'Muscat Stock Exchange'}],currencyCode:'OMR',currencySymbol:'OMR',timezone:'Asia/Muscat',benchmark:'MSX 30',dataSource:'Curated market-cap snapshot; USD values converted using OMR/USD reference rate',delay:'Snapshot',lastUpdated:'2026-09-11T18:00:00+04:00'};
 
-const seeds:Record<string,Seed[]>={
+const seeds:Record<GulfCode,Seed[]>={
 SA:[['Saudi Aramco','2222','Energy',1681,'TADAWUL'],['Al Rajhi Bank','1120','Banks',106.74,'TADAWUL'],['Maaden','1211','Mining',68.64,'TADAWUL'],['Saudi National Bank','1180','Banks',66.16,'TADAWUL'],['Saudi Telecom Company','7010','Telecommunications',58.36,'TADAWUL'],['SABIC','2010','Petrochemicals',39.75,'TADAWUL'],['ACWA Power','2082','Utilities',38.97,'TADAWUL'],['Riyad Bank','1010','Banks',21.82,'TADAWUL'],['Dr. Sulaiman Al Habib Medical Services','4013','Healthcare',21.70,'TADAWUL'],['Alinma Bank','1150','Banks',20.10,'TADAWUL'],['Saudi British Bank','1060','Banks',18.56,'TADAWUL'],['Saudi Electricity','5110','Utilities',18.29,'TADAWUL'],['Saudi Arabian Fertilizer Company','2020','Chemicals',15.96,'TADAWUL'],['Banque Saudi Fransi','1050','Banks',14.41,'TADAWUL']],
 AE:[['International Holding Company','IHC','Diversified',219.20,'ADX'],['TAQA','TAQA','Utilities',81.43,'ADX'],['ADNOC Gas','ADNOCGAS','Energy',68.54,'ADX'],['First Abu Dhabi Bank','FAB','Banks',59.50,'ADX'],['Emirates NBD Bank','EMIRATESNBD','Banks',52.07,'DFM'],['Emirates Telecom (e&)','EAND','Telecommunications',51.38,'ADX'],['Dubai Electricity and Water Authority','DEWA','Utilities',37.98,'DFM']],
 KW:[['Kuwait Finance House','KFH','Banks',46.88,'BOURSA'],['National Bank of Kuwait','NBK','Banks',26.13,'BOURSA'],['Boubyan Bank','BOUBYAN','Banks',10.41,'BOURSA'],['Zain','ZAIN','Telecommunications',8.79,'BOURSA'],['Mabanee Company','MABANEE','Real Estate',4.86,'BOURSA'],['Gulf Bank','GBK','Banks',4.73,'BOURSA'],['Warba Bank','WARBABANK','Banks',4.23,'BOURSA']],
@@ -20,7 +21,7 @@ OM:[['Bank Muscat','BKMB','Banks',8.11,'MSX'],['Sohar International Bank','BKSB'
 
 export const FX_USD_PER_LOCAL={SA:3.75,AE:3.6725,KW:0.3065,QA:3.64,BH:0.376,OM:0.3845} as const;
 
-function makeCompanies(code:keyof typeof seeds,config:MarketConfig){const localPerUsd=FX_USD_PER_LOCAL[code];return seeds[code].map(([name,ticker,sector,usd,exchangeCode])=>({id:`${code}-${exchangeCode??config.exchangeCode}-${ticker}`,countryCode:code,exchangeCode:exchangeCode??config.exchangeCode,ticker,name,sector,industry:sector,currency:config.currencyCode,marketCapUSD:usd*1e9,marketCapLocal:usd*1e9*localPerUsd,marketCapSource:'provider' as const,dataSource:config.dataSource,timestamp:config.lastUpdated}));}
+function makeCompanies(code:GulfCode,config:MarketConfig){const localPerUsd=FX_USD_PER_LOCAL[code];return seeds[code].map(([name,ticker,sector,usd,exchangeCode])=>({id:`${code}-${exchangeCode??config.exchangeCode}-${ticker}`,countryCode:code,exchangeCode:exchangeCode??config.exchangeCode,ticker,name,sector,industry:sector,currency:config.currencyCode,marketCapUSD:usd*1e9,marketCapLocal:usd*1e9*localPerUsd,marketCapSource:'provider' as const,dataSource:config.dataSource,timestamp:config.lastUpdated}));}
 export const saudiCompanies=makeCompanies('SA',SAUDI_CONFIG);
 export const uaeCompanies=makeCompanies('AE',UAE_CONFIG);
 export const kuwaitCompanies=makeCompanies('KW',KUWAIT_CONFIG);
