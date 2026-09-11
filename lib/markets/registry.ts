@@ -22,7 +22,7 @@ const egyptProvider: MarketDataProvider = {
   async getCompany(ticker){return egyptCompanies().find(c=>c.ticker.toUpperCase()===ticker.toUpperCase());},
   async getMarketSummary(){return summarize(egyptCompanies(),EGYPT_CONFIG,51.36,'Configured EGP/USD snapshot');},
   async getFX(){return 51.36;},
-  async getMarketStatus(){return 'closed';}
+  async getMarketStatus(){return getMarketStatusSync('EG');}
 };
 
 const moroccoProvider: MarketDataProvider = {
@@ -30,7 +30,7 @@ const moroccoProvider: MarketDataProvider = {
   async getCompany(ticker){return moroccoCompaniesSnapshot().find(c=>c.ticker.toUpperCase()===ticker.toUpperCase());},
   async getMarketSummary(){return summarize(moroccoCompaniesSnapshot(),MOROCCO_CONFIG,MOROCCO_FX_USD_MAD,'USD/MAD market snapshot');},
   async getFX(){return MOROCCO_FX_USD_MAD;},
-  async getMarketStatus(){return 'closed';}
+  async getMarketStatus(){return getMarketStatusSync('MA');}
 };
 
 function summarize(rows:MarketCompany[],config:MarketConfig,fxRate:number,fxSource:string):MarketSummary{
@@ -47,6 +47,18 @@ export function marketCodes(){return Object.keys(MARKET_REGISTRY);}
 export function getMarketCompaniesSync(code:string){return code.toUpperCase()==='MA'?moroccoCompaniesSnapshot():egyptCompanies();}
 export function getMarketCompanySync(code:string,ticker:string){return getMarketCompaniesSync(code).find(c=>c.ticker.toUpperCase()===ticker.toUpperCase());}
 export function getMarketSummarySync(code:string){const market=getMarket(code);return summarize(getMarketCompaniesSync(code),market.config,code.toUpperCase()==='MA'?MOROCCO_FX_USD_MAD:51.36,code.toUpperCase()==='MA'?'USD/MAD market snapshot':'Configured EGP/USD snapshot');}
+export function getMarketStatusSync(code:string):'open'|'closed'|'auction'{
+  const config=getMarket(code).config;
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:config.timezone,weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date());
+  const weekday=parts.find(p=>p.type==='weekday')?.value;
+  const hour=Number(parts.find(p=>p.type==='hour')?.value??'0');
+  const minute=Number(parts.find(p=>p.type==='minute')?.value??'0');
+  const minutes=hour*60+minute;
+  const weekend=code.toUpperCase()==='MA'?weekday==='Sat'||weekday==='Sun':weekday==='Fri'||weekday==='Sat';
+  const open=code.toUpperCase()==='MA'?570:600;
+  const close=code.toUpperCase()==='MA'?930:870;
+  return weekend?'closed':minutes>=open&&minutes<close?'open':'closed';
+}
 export async function getMarketCompanies(code:string){return getMarket(code).provider.getCompanies();}
 export async function getMarketCompany(code:string,ticker:string){return getMarket(code).provider.getCompany(ticker);}
 export async function getMarketSummary(code:string){return getMarket(code).provider.getMarketSummary();}
