@@ -20,6 +20,7 @@ export default function RootLayout({
           id="google-adsense"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2107729320853151"
           strategy="beforeInteractive"
+          async
           crossOrigin="anonymous"
         />
       </body>
