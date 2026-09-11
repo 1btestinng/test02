@@ -12,7 +12,7 @@ export async function generateMetadata({searchParams}:{searchParams:Promise<{cou
 
 export default async function Home({searchParams}:{searchParams:Promise<{country?:string;top?:string;sector?:string;search?:string;exchange?:string}>}){
   const params=await searchParams;const selected=country(params.country);const top=allowedTop.includes(Number(params.top))?Number(params.top):100;
-  let initialCompanies=[];
+  let initialCompanies: Awaited<ReturnType<typeof getMarketCompanies>>=[];
   try{initialCompanies=await getMarketCompanies(selected);}catch{}
   return <HomeClient initialCountry={selected} initialTop={top} initialSector={params.sector??'All'} initialSearch={params.search??''} initialExchange={params.exchange??'All'} initialCompanies={initialCompanies}/>;
 }
