@@ -1,0 +1,1 @@
+import {NextResponse} from 'next/server';import {rankCompanies} from '@/lib/market';export async function GET(){return NextResponse.json({data:rankCompanies(),meta:{count:100,calculated:true,delay:'Delayed snapshot'}})}
