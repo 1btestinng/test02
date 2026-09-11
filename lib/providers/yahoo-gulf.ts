@@ -168,9 +168,7 @@ export async function getLiveGulfCompanies(
 
   if (missing.length > 0) {
     const fallback = await Promise.all(
-      missing.map(async (item) => {
-        return [item.providerSymbol, await fetchChartQuote(item.providerSymbol)] as const;
-      }),
+      missing.map(async (item) => [item.providerSymbol, await fetchChartQuote(item.providerSymbol)] as const),
     );
 
     for (const [symbol, quote] of fallback) {
@@ -182,9 +180,7 @@ export async function getLiveGulfCompanies(
 
   return mappings.map((item) => {
     const quote = quotes.get(item.providerSymbol);
-    const price = finite(quote?.regularMarketPrice)
-      ? quote.regularMarketPrice
-      : undefined;
+    const price = finite(quote?.regularMarketPrice) ? quote.regularMarketPrice : undefined;
     const previousClose = finite(quote?.regularMarketPreviousClose)
       ? quote.regularMarketPreviousClose
       : undefined;
@@ -201,9 +197,7 @@ export async function getLiveGulfCompanies(
         ? quote.sharesOutstanding * price
         : undefined;
 
-    const marketCapUSD = finite(marketCapLocal)
-      ? marketCapLocal / localPerUsd
-      : undefined;
+    const marketCapUSD = finite(marketCapLocal) ? marketCapLocal / localPerUsd : undefined;
 
     return {
       id: `${code}-${item.exchangeCode}-${item.ticker}`,
@@ -217,15 +211,13 @@ export async function getLiveGulfCompanies(
       price,
       previousClose,
       changePercent,
-      sharesOutstanding: finite(quote?.sharesOutstanding)
-        ? quote.sharesOutstanding
-        : undefined,
+      sharesOutstanding: finite(quote?.sharesOutstanding) ? quote.sharesOutstanding : undefined,
       marketCapLocal,
       marketCapUSD,
       marketCapSource: finite(quote?.marketCap) ? 'provider' : 'calculated',
       timestamp: finite(quote?.regularMarketTime)
         ? new Date(quote.regularMarketTime * 1000).toISOString()
-        : now,
+        : undefined,
       dataSource: 'Yahoo Finance delayed market data',
     } satisfies MarketCompany;
   });
@@ -251,28 +243,19 @@ export function createYahooGulfProvider(
     },
     async getCompany(ticker) {
       const companies = await load();
-      return companies.find(
-        (company) => company.ticker.toUpperCase() === ticker.toUpperCase(),
-      );
+      return companies.find((company) => company.ticker.toUpperCase() === ticker.toUpperCase());
     },
     async getMarketSummary() {
       const rows = await load();
       const lastUpdated = rows.reduce(
-        (latest, row) =>
-          row.timestamp && row.timestamp > latest ? row.timestamp : latest,
+        (latest, row) => (row.timestamp && row.timestamp > latest ? row.timestamp : latest),
         '',
       );
 
       return {
         count: rows.length,
-        totalLocal: rows.reduce(
-          (sum, row) => sum + (row.marketCapLocal ?? 0),
-          0,
-        ),
-        totalUSD: rows.reduce(
-          (sum, row) => sum + (row.marketCapUSD ?? 0),
-          0,
-        ),
+        totalLocal: rows.reduce((sum, row) => sum + (row.marketCapLocal ?? 0), 0),
+        totalUSD: rows.reduce((sum, row) => sum + (row.marketCapUSD ?? 0), 0),
         industries: new Set(rows.map((row) => row.sector).filter(Boolean)).size,
         fxRate: localPerUsd,
         fxSource: `${config.currencyCode}/USD reference rate`,
@@ -295,11 +278,12 @@ export function createYahooGulfProvider(
 
       const weekday = parts.find((part) => part.type === 'weekday')?.value;
       const hour = Number(parts.find((part) => part.type === 'hour')?.value ?? 0);
-      const minute = Number(
-        parts.find((part) => part.type === 'minute')?.value ?? 0,
-      );
+      const minute = Number(parts.find((part) => part.type === 'minute')?.value ?? 0);
       const minutes = hour * 60 + minute;
-      const weekend = weekday === 'Fri' || weekday === 'Sat';
+      const isUae = code === 'AE';
+      const weekend = isUae
+        ? weekday === 'Sat' || weekday === 'Sun'
+        : weekday === 'Fri' || weekday === 'Sat';
 
       return weekend || minutes < 600 || minutes >= 900 ? 'closed' : 'open';
     },
