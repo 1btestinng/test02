@@ -4,7 +4,7 @@ import type {GulfCode} from '@/lib/markets/gulf';
 type Seed=[string,string,string,number,string?];
 type YahooQuote={symbol?:string;regularMarketPrice?:number;regularMarketPreviousClose?:number;regularMarketChangePercent?:number;regularMarketTime?:number;marketCap?:number;sharesOutstanding?:number;currency?:string};
 type YahooResponse={quoteResponse?:{result?:YahooQuote[]}};
-type YahooChart={chart?:{result?:Array<{meta?:{regularMarketPrice?:number;previousClose?:number;regularMarketTime?:number;currency?:string};indicators?:{quote?:Array<{close?:Array<number|null>}>}}>}}};
+type YahooChart={chart?:{result?:Array<{meta?:{regularMarketPrice?:number;previousClose?:number;regularMarketTime?:number;currency?:string};indicators?:{quote?:Array<{close?:Array<number|null>}>}}>} };
 
 const SUFFIX:{[K in GulfCode]?:string}={SA:'.SR',KW:'.KW',QA:'.QA',BH:'.BH',OM:'.OM'};
 const UAE_SUFFIX={ADX:'.AB',DFM:'.AE'} as const;
