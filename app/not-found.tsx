@@ -1,0 +1,1 @@
+import Link from 'next/link';export default function NotFound(){return <div className="shell"><main className="method"><div className="eyebrow">404</div><h1>Company not found.</h1><p>The requested EGX listing is not in the current verified Top 100 dataset.</p><Link href="/">← Back to EGX 100</Link></main></div>}
