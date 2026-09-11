@@ -1,0 +1,4 @@
+import {companies} from './companies';
+export const USD_EGP=51.36;
+export function rankCompanies(priceOverrides:Record<string,number>={}){return companies.map(c=>{const price=priceOverrides[c.ticker]??c.price;const marketCapEGP=price*c.sharesOutstanding;return {...c,price,marketCapEGP,marketCapUSD:marketCapEGP/USD_EGP}}).sort((a,b)=>b.marketCapEGP-a.marketCapEGP).map((c,i)=>({...c,rank:i+1}));}
+export function marketSummary(){const rows=rankCompanies();return {count:rows.length,totalEGP:rows.reduce((s,c)=>s+c.marketCapEGP,0),totalUSD:rows.reduce((s,c)=>s+c.marketCapUSD,0),industries:new Set(rows.map(c=>c.industry)).size,fx:USD_EGP,updatedAt:'2026-09-11T17:01:00+03:00',source:'Mansa Markets snapshot; replace with licensed/provider feed in production',delay:'Delayed / refreshed by provider'}}
