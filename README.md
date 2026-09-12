@@ -1,46 +1,297 @@
-# iStocks
+# iStocks - North Africa
 
-A minimal market-cap ranking and company intelligence experience for listed companies across North Africa.
+A minimal, data-first North Africa information platform with a mature stock-market and company-intelligence product at its core.
 
-## Company fundamentals
-Company pages use **Alpha Vantage** as the optional primary fundamental-data provider when `ALPHA_VANTAGE_API_KEY` is configured, with the existing free Yahoo Finance market-data/fundamentals path retained as a fallback. Alpha Vantage provides annual and quarterly income statements, balance sheets, cash flow statements and company overview/fundamental fields through its API. urlAlpha Vantage API documentationhttps://www.alphavantage.co/documentation/
+The platform currently covers **Egypt, Morocco, Tunisia and Algeria** for market/company data, with the broader North Africa platform architecture prepared for **Libya** and additional sections such as history, economy, travel, culture, geography, people, government, data, maps, methodology and sources.
 
-Alpha Vantage offers a free API key. Its current standard free service allows 25 API requests per day for most datasets, and Alpha Vantage says verified open-source or educational projects can receive unlimited API requests. urlAlpha Vantage support / free API limitshttps://www.alphavantage.co/support/
+## Product
 
-The application normalizes provider data into the internal iStocks financial model and calculates only transparent derived metrics such as TTM aggregates, margins, ROE/ROA, net debt, free cash flow and book value per share when the required provider inputs are present. Missing provider fields remain unavailable; the application does not invent financial values.
+### Stock Market
 
-`ALPHA_VANTAGE_API_KEY` is server-side only and must be configured in Vercel Environment Variables if Alpha Vantage fundamentals are desired. If no key is configured, iStocks continues to use its existing free market-data/fundamentals fallback instead of breaking company pages.
+The stock-market experience is the primary mature product and remains available from `/`.
 
-## Current Version 1 data
-The repository includes market snapshots for Egypt, Morocco, Tunisia and Algeria. Prices and market caps are delayed/source-derived; the UI explicitly discloses this. The ranking engine calculates market cap from price × shares outstanding where configured shares are available.
+It provides:
+
+- Market-cap rankings
+- Country/market selection
+- Company search and filtering
+- Sector and exchange filtering
+- Company detail pages
+- Historical price charts
+- Historical market-cap charts
+- Exact chart-point interaction/tooltips
+- Multiple historical ranges: 1D, 1W, 1M, 3M, 6M, 1Y, 3Y, 5Y and MAX
+- Local-currency and USD views where verified FX data is available
+- Company logos with safe initials fallback
+- Quote metadata such as previous close, open, high, low and volume when supplied by the provider
+- Financial statements, valuation and profitability metrics when verified provider data is available
+
+## Company intelligence
+
+Company pages use a shared, country-aware intelligence architecture rather than separate implementations for each market.
+
+The company experience supports:
+
+- Current local-currency price
+- Current USD price
+- Local-currency market capitalization
+- USD market capitalization
+- Historical price data
+- Historical market-cap calculations
+- Local/USD chart scaling
+- Historical FX conversion
+- Company identifiers and provider tickers
+- Company logos
+- Provider/source and retrieval-status disclosure
+- Verified financial statements and fundamental metrics when available
+
+### Historical USD conversion
+
+Historical USD values are calculated using the FX rate corresponding to the historical observation rather than applying today's exchange rate to the entire historical series.
+
+Conceptually:
+
+`Historical USD Price(t) = Historical Local Price(t) / Historical Local-Currency-per-USD FX(t)`
+
+Historical market capitalization follows the same point-in-time FX principle.
+
+Configured FX symbols include:
+
+- Egypt: `EGP=X`
+- Morocco: `MAD=X`
+- Tunisia: `TND=X`
+- Algeria: `DZD=X`
+
+If a verified historical FX observation is unavailable, the application does **not** fabricate a USD value.
+
+### Historical market capitalization
+
+Where the connected free dataset does not provide historical shares outstanding, historical market capitalization is transparently calculated as:
+
+`Historical Market Cap(t) = Historical Share Price(t) × Current Shares Outstanding`
+
+This is an estimate of historical market capitalization and does not attempt to reconstruct historical share-count changes that are unavailable from the connected dataset.
+
+### Financial data
+
+Company fundamentals use **Alpha Vantage** as the optional primary fundamental-data provider when `ALPHA_VANTAGE_API_KEY` is configured, with the existing free Yahoo Finance path retained as a fallback.
+
+Alpha Vantage data can include:
+
+- Annual and quarterly income statements
+- Balance sheets
+- Cash-flow statements
+- Company overview/fundamental fields
+- Valuation inputs
+- Profitability inputs
+- Shareholder data
+
+The application normalizes provider data into the internal iStocks financial model and calculates only transparent derived metrics when the required provider inputs exist. Missing fields remain unavailable.
+
+`ALPHA_VANTAGE_API_KEY` is server-side only and must be configured in Vercel Environment Variables if Alpha Vantage fundamentals are desired.
+
+urlAlpha Vantage API documentationhttps://www.alphavantage.co/documentation/  
+urlAlpha Vantage support / free API limitshttps://www.alphavantage.co/support/
+
+## Supported markets
+
+| Market | Code | Currency | Yahoo symbol convention | Historical FX |
+|---|---|---|---|---|
+| Egypt | `EG` | EGP | `.CA` | `EGP=X` |
+| Morocco | `MA` | MAD | `.CS` | `MAD=X` |
+| Tunisia | `TN` | TND | `.TN` | `TND=X` |
+| Algeria | `DZ` | DZD | Provider/search dependent | `DZD=X` |
+
+Provider availability varies by exchange. A missing provider field is displayed as unavailable rather than replaced with an estimated or fabricated value.
+
+## North Africa platform
+
+The application has a centralized country/section architecture designed to expand beyond the stock-market product.
+
+### Countries
+
+- Egypt
+- Libya
+- Tunisia
+- Algeria
+- Morocco
+
+### Planned/active sections
+
+- History
+- Stock Market
+- Economy
+- Companies
+- Travel
+- Culture
+- Geography
+- People
+- Government
+- North Africa Data
+- Interactive Map
+- About
+- Methodology
+- Sources
+
+The shared navigation supports:
+
+- Persistent desktop sidebar
+- Collapsed sidebar
+- Mobile navigation drawer
+- Custom navigation ordering
+- Drag-and-drop navigation reordering
+- Keyboard up/down reordering
+- Local-storage persistence
+- Reset-to-default navigation
+- Centralized navigation configuration
+- Country-aware routes
+- Breadcrumbs
+- Loading, empty, error and coming-soon states
+
+The stock-market homepage remains the primary mature data product while other sections can be expanded independently without duplicating country/page architecture.
 
 ## Architecture
-`MarketDataProvider → normalization → free fundamentals adapter → ranking/company intelligence → Next.js UI`
 
-No vendor credential is exposed to the browser. Fundamentals API calls are server-side and cached.
+```text
+Country configuration
+        ↓
+Market registry
+        ↓
+MarketDataProvider
+        ↓
+Provider ticker resolution
+        ↓
+Historical price + quote data
+        ↓
+Historical FX data
+        ↓
+Company intelligence normalization
+        ↓
+Charts / rankings / financial intelligence
+        ↓
+Next.js UI
+```
+
+The architecture is designed so market-specific differences such as ticker conventions, currencies, exchanges, time zones and provider availability are handled through configuration and provider adapters rather than duplicated UI code.
+
+## Data integrity rules
+
+iStocks follows a strict no-fabrication policy:
+
+- Never fabricate prices.
+- Never fabricate market capitalization.
+- Never fabricate shares outstanding.
+- Never fabricate historical prices.
+- Never fabricate FX rates.
+- Never fabricate financial statements.
+- Never imply delayed data is real-time.
+- Derived metrics must use verified provider inputs.
+- Calculated values are explicitly identified where appropriate.
+- Unsupported or unavailable metrics remain unavailable.
+- Historical USD conversion must use historical FX data when available.
+
+## Data providers
+
+The application currently uses free/provider-accessible market and financial data sources, including Yahoo Finance market-data endpoints and optional Alpha Vantage fundamentals.
+
+Provider data can be delayed, incomplete or unavailable for individual exchanges. The UI exposes source/status information rather than hiding provider limitations.
 
 ## Setup
-1. `npm install`
-2. Copy `.env.example` to `.env`.
-3. Set `DATABASE_URL` to PostgreSQL/Supabase/Neon.
-4. Optionally set `ALPHA_VANTAGE_API_KEY` using a free Alpha Vantage key.
-5. `npx prisma migrate dev --name init`
-6. `npm run dev`
 
-## Data contract
-Required environment variables depend on the configured market-data and FX providers. If a provider is delayed or unavailable, the application must continue to display the delay/outage state rather than implying real-time data.
+```bash
+npm install
+cp .env.example .env
+npm run dev
+```
+
+Optional fundamentals configuration:
+
+```env
+ALPHA_VANTAGE_API_KEY=""
+```
+
+The application can continue without an Alpha Vantage key by using its existing fallback data paths.
 
 ## Routes
-- `/` — market ranking
-- `/company/[ticker]` — company detail and intelligence
-- `/industries` — industry overview
-- `/industry/[industry]` — industry ranking
-- `/methodology` — methodology and provenance
-- `/api/companies/top100` — normalized ranking JSON
-- `/api/market/summary` — market summary JSON
 
-## Quality rules
-Never fabricate prices, shares, historical data or financial statements. If a provider does not return a metric, iStocks leaves that metric unavailable. Derived metrics must be calculated only from provider-returned inputs and labeled as calculated where applicable.
+### Core market routes
+
+- `/` — primary market ranking and company discovery
+- `/company/[ticker]` — legacy-compatible company detail route
+- `/company/[country]/[ticker]` — country-aware company detail route
+- `/markets` — stock-market alias
+- `/markets/[country]` — country market alias
+
+### North Africa platform routes
+
+- `/history`
+- `/markets`
+- `/economy`
+- `/companies`
+- `/travel`
+- `/culture`
+- `/geography`
+- `/people`
+- `/government`
+- `/data`
+- `/map`
+- `/about`
+- `/methodology`
+- `/sources`
+
+Country section pages follow the reusable pattern:
+
+`/[section]/[country]`
+
+Unsupported or not-yet-connected datasets are explicitly presented as coming soon rather than populated with invented information.
+
+## Performance and UX
+
+The application is built with the Next.js App Router and emphasizes:
+
+- Server-side data retrieval where appropriate
+- Cached provider requests
+- Reusable components
+- Scoped styles
+- Responsive desktop/mobile layouts
+- Accessible navigation controls
+- Reduced-motion support
+- Exact historical chart interaction
+- No unnecessary client-side data fabrication
+
+Historical chart data can be downsampled for rendering performance while retaining the complete underlying observations for exact tooltip interaction.
+
+## Quality assurance
+
+Before considering a change production-ready:
+
+1. TypeScript must pass.
+2. The production Next.js build must pass.
+3. Existing stock-market routes must remain functional.
+4. Country switching must remain functional.
+5. Company pages must work across supported markets.
+6. Missing provider data must degrade safely to `—`/unavailable states.
+7. Historical USD values must not silently fall back to today's FX rate.
+8. No fake company, price, FX or financial values may be introduced.
+9. Desktop and mobile navigation must remain usable.
+10. New deployments must be verified before being described as production-ready.
 
 ## Deployment
-Vercel is configured to deploy the `main` branch. The application is a standard Next.js App Router project and uses `npm run build` for production builds.
+
+The repository is connected to Vercel and deploys from the `main` branch.
+
+Production builds use the standard Next.js build pipeline:
+
+```bash
+npm run build
+```
+
+Do not consider a GitHub commit production-ready until the corresponding Vercel deployment has completed successfully.
+
+## Project philosophy
+
+**iStocks - North Africa** is intended to become a reliable, structured information layer for North Africa — beginning with public markets and expanding into broader economic, historical, geographic, cultural and company intelligence.
+
+The guiding principle is simple:
+
+> **Verified data first. Clear presentation second. Scale without duplication.**
