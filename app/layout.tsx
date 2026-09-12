@@ -1,5 +1,6 @@
 import './globals.css';
 import './matrix-theme.css';
+import './atlas-theme.css';
 import './north-africa-hub-brand.css';
 import type {Metadata} from 'next';
 import Script from 'next/script';
@@ -22,6 +23,17 @@ export const metadata: Metadata = {
   applicationName: 'North Africa Hub',
 };
 
+const themeBootstrap = `(() => {
+  try {
+    const stored = window.localStorage.getItem('north-africa-hub-mode');
+    const legacy = window.localStorage.getItem('egystocks-theme');
+    const mode = stored === 'atlas' || stored === 'matrix' ? stored : legacy === 'light' ? 'atlas' : 'matrix';
+    document.documentElement.dataset.theme = mode;
+  } catch {
+    document.documentElement.dataset.theme = 'matrix';
+  }
+})();`;
+
 export default function RootLayout({children}:{children:React.ReactNode}) {
-  return <html lang="en"><body><NorthAfricaShell>{children}</NorthAfricaShell><Script id="google-adsense" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2107729320853151" strategy="beforeInteractive" async crossOrigin="anonymous" /></body></html>;
+  return <html lang="en"><head><script dangerouslySetInnerHTML={{__html:themeBootstrap}} /></head><body><NorthAfricaShell>{children}</NorthAfricaShell><Script id="google-adsense" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2107729320853151" strategy="beforeInteractive" async crossOrigin="anonymous" /></body></html>;
 }
