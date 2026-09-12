@@ -13,11 +13,8 @@ export const NORTH_AFRICA_SECTIONS=[
  {id:'economy',label:'Economy',href:'/economy',group:'explore'},
  {id:'travel',label:'Travel',href:'/travel',group:'explore'},
  {id:'culture',label:'Culture',href:'/culture',group:'explore'},
- {id:'geography',label:'Geography',href:'/geography',group:'explore'},
  {id:'people',label:'People',href:'/people',group:'explore'},
- {id:'data',label:'North Africa Data',href:'/data',group:'data'},
- {id:'map',label:'Interactive Map',href:'/map',group:'data'},
- {id:'vision',label:'Vision',href:'/vision',group:'about'},
+ {id:'vision',label:'Vision',href:'/vision',group:'vision'},
 ] as const;
 export const DEFAULT_NAVIGATION_ORDER=NORTH_AFRICA_SECTIONS.map(x=>x.id);
 export const NAVIGATION_STORAGE_KEY='istocks:north-africa-navigation:v1';
@@ -34,6 +31,6 @@ export const SECTION_CONTENT:Record<string,{eyebrow:string;title:string;descript
  government:{eyebrow:'North Africa',title:'Government',description:'A factual, politically neutral index of institutions and administrative structures.',topics:['Political systems','Government structure','Heads of state','Parliaments','Administrative divisions','Elections','Constitutional structures']},
  data:{eyebrow:'North Africa',title:'North Africa Data',description:'A quantitative layer for cross-country comparison across markets, economies, people, trade, tourism and energy.',topics:['Markets','Economy','Population','Trade','Tourism','Energy','Currencies','Commodities','Demographics']},
  map:{eyebrow:'North Africa',title:'Interactive Map',description:'The future geographic layer for exploring countries, cities, regions, destinations and verified data points.',topics:['Countries','Cities','Regions','Tourist destinations','Historical sites','Economic data','Population data']},
- about:{eyebrow:'iStocks - North Africa',title:'About',description:'iStocks is evolving from a stock-market product into a broader North African information and data platform.',topics:['North Africa','Markets','Data','Research','Information architecture']},
- sources:{eyebrow:'iStocks - North Africa',title:'Sources',description:'A dedicated home for source transparency as new information domains are connected.',topics:['Financial sources','Economic datasets','Government sources','Historical sources','Geographic datasets','Travel sources']},
+ about:{eyebrow:'Koshary and Couscous',title:'About',description:'Koshary and Couscous is evolving from a stock-market product into a broader North African information and data platform.',topics:['North Africa','Markets','Data','Research','Information architecture']},
+ sources:{eyebrow:'Koshary and Couscous',title:'Sources',description:'A dedicated home for source transparency as new information domains are connected.',topics:['Financial sources','Economic datasets','Government sources','Historical sources','Geographic datasets','Travel sources']},
 };
