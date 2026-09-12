@@ -11,7 +11,6 @@ export const NORTH_AFRICA_SECTIONS=[
  {id:'history',label:'History',href:'/history',group:'explore'},
  {id:'markets',label:'Stock Market',href:'/',group:'explore'},
  {id:'economy',label:'Economy',href:'/economy',group:'explore'},
- {id:'companies',label:'Companies',href:'/companies',group:'explore'},
  {id:'travel',label:'Travel',href:'/travel',group:'explore'},
  {id:'culture',label:'Culture',href:'/culture',group:'explore'},
  {id:'geography',label:'Geography',href:'/geography',group:'explore'},
@@ -19,10 +18,6 @@ export const NORTH_AFRICA_SECTIONS=[
  {id:'data',label:'North Africa Data',href:'/data',group:'data'},
  {id:'map',label:'Interactive Map',href:'/map',group:'data'},
  {id:'vision',label:'Vision',href:'/vision',group:'about'},
- {id:'about',label:'About',href:'/about',group:'about'},
- {id:'methodology',label:'Methodology',href:'/methodology',group:'about'},
- {id:'sources',label:'Sources',href:'/sources',group:'about'},
- {id:'government',label:'Government',href:'/government',group:'about'},
 ] as const;
 export const DEFAULT_NAVIGATION_ORDER=NORTH_AFRICA_SECTIONS.map(x=>x.id);
 export const NAVIGATION_STORAGE_KEY='istocks:north-africa-navigation:v1';
