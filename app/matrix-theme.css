@@ -1,6 +1,7 @@
 /* iStocks Matrix-inspired visual system.
    This file intentionally overrides the existing neutral palette without
-   changing component structure or product functionality. */
+   changing component structure or product functionality.
+   Theme direction: #0F1710 — quiet, institutional, signal-driven green. */
 
 :root:not([data-theme='light']),
 html[data-theme='dark'] {
