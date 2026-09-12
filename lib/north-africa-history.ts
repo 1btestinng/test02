@@ -51,6 +51,10 @@ async function fetchPage(company:MarketCompany,page:number){
  * Verified public historical fallback for CSE/BVMT.
  * Fetch every available history page until the provider stops returning new
  * observations. We never manufacture or interpolate observations.
+ *
+ * Note: the provider itself may expose only a bounded public history window;
+ * in that case this function returns exactly that verified window rather than
+ * pretending it is longer.
  */
 export async function getNorthAfricaHistoricalPrices(company:MarketCompany){
   if(!marketFor(company))return {history:[] as HistoricalPricePoint[],source:undefined as string|undefined,error:undefined as string|undefined};
