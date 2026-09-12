@@ -3,6 +3,7 @@ import type {HistoricalPricePoint,MarketCompany} from '@/lib/markets/types';
 type StockAnalysisMarket='cbse'|'bvmt';
 const MARKET_MAP:Record<string,StockAnalysisMarket>={MA:'cbse',TN:'bvmt'};
 const SOURCE='StockAnalysis / S&P Global Market Intelligence';
+const MAX_PAGES=120;
 
 function finite(value:number|undefined):value is number{return typeof value==='number'&&Number.isFinite(value);}
 function marketFor(company:MarketCompany):StockAnalysisMarket|undefined{return MARKET_MAP[company.countryCode.toUpperCase()];}
@@ -47,15 +48,26 @@ async function fetchPage(company:MarketCompany,page:number){
 }
 
 /**
- * Verified public historical fallback for CSE/BVMT. We consume only the
- * human-readable historical table and never manufacture observations. The
- * first three pages are bounded deliberately to avoid excessive provider load.
+ * Verified public historical fallback for CSE/BVMT.
+ * Fetch every available history page until the provider stops returning new
+ * observations. We never manufacture or interpolate observations.
  */
 export async function getNorthAfricaHistoricalPrices(company:MarketCompany){
   if(!marketFor(company))return {history:[] as HistoricalPricePoint[],source:undefined as string|undefined,error:undefined as string|undefined};
-  const pages=await Promise.all([1,2,3].map(page=>fetchPage(company,page).catch(()=>[] as HistoricalPricePoint[])));
+
   const byDate=new Map<string,HistoricalPricePoint>();
-  for(const point of pages.flat())byDate.set(point.date.slice(0,10),point);
+  let previousSize=0;
+
+  for(let page=1;page<=MAX_PAGES;page++){
+    let rows:HistoricalPricePoint[]=[];
+    try{rows=await fetchPage(company,page);}catch{}
+    if(!rows.length)break;
+
+    for(const point of rows)byDate.set(point.date.slice(0,10),point);
+    if(byDate.size===previousSize)break;
+    previousSize=byDate.size;
+  }
+
   const history=[...byDate.values()].sort((a,b)=>a.date.localeCompare(b.date));
   if(!history.length)return {history,source:undefined,error:`${SOURCE} returned no verified historical observations for ${company.countryCode} ${company.ticker}.`};
   return {history,source:SOURCE,error:undefined};
