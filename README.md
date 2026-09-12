@@ -3,25 +3,27 @@
 A minimal market-cap ranking and company intelligence experience for listed companies across North Africa.
 
 ## Company fundamentals
-Company pages use **EOD Historical Data (EODHD)** as the primary fundamental-data provider when `EODHD_API_KEY` is configured. EODHD's Fundamentals API provides company profile, valuation, shares, dividends, earnings and annual/quarterly financial statements for supported non-US exchanges. urlEODHD Fundamentals API documentationhttps://eodhd.com/financial-apis/stock-etfs-fundamental-data-feeds
+Company pages use **Alpha Vantage** as the optional primary fundamental-data provider when `ALPHA_VANTAGE_API_KEY` is configured, with the existing free Yahoo Finance market-data/fundamentals path retained as a fallback. Alpha Vantage provides annual and quarterly income statements, balance sheets, cash flow statements and company overview/fundamental fields through its API. urlAlpha Vantage API documentationhttps://www.alphavantage.co/documentation/
 
-The application normalizes provider data into the internal iStocks financial model and calculates only transparent derived metrics such as TTM aggregates, margins, ROE/ROA, net debt and book value per share when the required provider inputs are present. Missing provider fields remain unavailable; the application does not invent financial values.
+Alpha Vantage offers a free API key. Its current standard free service allows 25 API requests per day for most datasets, and Alpha Vantage says verified open-source or educational projects can receive unlimited API requests. urlAlpha Vantage support / free API limitshttps://www.alphavantage.co/support/
 
-`EODHD_API_KEY` is server-side only and must be configured in Vercel Environment Variables. For automatic exchange discovery, iStocks uses EODHD's exchange list; optional `EODHD_EG_EXCHANGE`, `EODHD_MA_EXCHANGE`, `EODHD_TN_EXCHANGE`, and `EODHD_DZ_EXCHANGE` overrides can pin exchange codes when needed.
+The application normalizes provider data into the internal iStocks financial model and calculates only transparent derived metrics such as TTM aggregates, margins, ROE/ROA, net debt, free cash flow and book value per share when the required provider inputs are present. Missing provider fields remain unavailable; the application does not invent financial values.
+
+`ALPHA_VANTAGE_API_KEY` is server-side only and must be configured in Vercel Environment Variables if Alpha Vantage fundamentals are desired. If no key is configured, iStocks continues to use its existing free market-data/fundamentals fallback instead of breaking company pages.
 
 ## Current Version 1 data
 The repository includes market snapshots for Egypt, Morocco, Tunisia and Algeria. Prices and market caps are delayed/source-derived; the UI explicitly discloses this. The ranking engine calculates market cap from price × shares outstanding where configured shares are available.
 
 ## Architecture
-`MarketDataProvider → normalization → company fundamentals adapter → ranking/company intelligence → Next.js UI`
+`MarketDataProvider → normalization → free fundamentals adapter → ranking/company intelligence → Next.js UI`
 
-The provider interface lives in `lib/providers`. No vendor credential is exposed to the browser. EODHD fundamentals are accessed only from the server.
+No vendor credential is exposed to the browser. Fundamentals API calls are server-side and cached.
 
 ## Setup
 1. `npm install`
 2. Copy `.env.example` to `.env`.
 3. Set `DATABASE_URL` to PostgreSQL/Supabase/Neon.
-4. Set `EODHD_API_KEY` for company fundamentals.
+4. Optionally set `ALPHA_VANTAGE_API_KEY` using a free Alpha Vantage key.
 5. `npx prisma migrate dev --name init`
 6. `npm run dev`
 
