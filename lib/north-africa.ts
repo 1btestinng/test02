@@ -18,6 +18,7 @@ export const NORTH_AFRICA_SECTIONS=[
  {id:'people',label:'People',href:'/people',group:'explore'},
  {id:'data',label:'North Africa Data',href:'/data',group:'data'},
  {id:'map',label:'Interactive Map',href:'/map',group:'data'},
+ {id:'vision',label:'Vision',href:'/vision',group:'about'},
  {id:'about',label:'About',href:'/about',group:'about'},
  {id:'methodology',label:'Methodology',href:'/methodology',group:'about'},
  {id:'sources',label:'Sources',href:'/sources',group:'about'},
