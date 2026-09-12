@@ -4,128 +4,197 @@ import styles from './vision.module.css';
 
 export const metadata:Metadata={
  title:'Koshary and Couscous | Vision',
- description:'Our vision is to build the digital intelligence platform for North Africa — connecting markets, companies, economies, history, geography, culture, people and data.',
+ description:'Our founding vision for building a digital home for North Africa — connecting its countries, people, history, culture, economies, markets and stories.',
 };
-
-const areas=[
- ['Markets','North African stock markets, companies, prices, market capitalization, historical performance and financial intelligence.'],
- ['Companies','A structured database for understanding important companies across the region.'],
- ['Economy','Economic indicators, sectors, trade, investment, currencies, growth and broader economic intelligence.'],
- ['History','The events, civilizations and transformations that shaped modern North Africa.'],
- ['Geography','Countries, cities, regions, borders, landscapes, resources and geographic relationships.'],
- ['Culture','Languages, traditions, food, music, art, architecture and cultural identity.'],
- ['People','Important historical and contemporary figures who have shaped the region.'],
- ['Government','Institutions, political structures and public information.'],
- ['Travel','Cities, destinations, landmarks and places worth understanding and exploring.'],
- ['Data','Structured datasets and comparable information about the region.'],
-] as const;
-
-const countries=[['🇪🇬','Egypt'],['🇱🇾','Libya'],['🇹🇳','Tunisia'],['🇩🇿','Algeria'],['🇲🇦','Morocco']] as const;
-
-const principles=['No fabricated data','Transparent calculations','Source-aware information','Clear methodology','Historical context','Comparable data','Explicit uncertainty','Continuous improvement'];
 
 export default function VisionPage(){
  return <main className={styles.page}>
   <div className={styles.breadcrumb}>Koshary and Couscous / Vision</div>
+
   <section className={styles.hero}>
    <div className={styles.heroEyebrow}>OUR VISION</div>
-   <h1>Building the digital intelligence platform for North Africa.</h1>
-   <p className={styles.heroLead}>Koshary and Couscous brings together the markets, companies, economies, history, geography, culture, people and data of North Africa into one structured, transparent and accessible platform.</p>
-   <p className={styles.heroNote}>From financial markets to the wider information landscape of the region.</p>
-  </section>
-
-  <section className={styles.statement} aria-labelledby="vision-statement">
-   <div className="eyebrow">Our Vision</div>
-   <h2 id="vision-statement">To build the digital intelligence platform for North Africa.</h2>
+   <h1>The United States of North Africa.</h1>
+   <p className={styles.heroLead}>We believe North Africa deserves to be seen differently — not as five countries on a map, but as a living civilization connected by history, culture, geography, trade, language, food, ideas and people.</p>
+   <p className={styles.heroNote}>A digital home for understanding, exploring and connecting North Africa.</p>
   </section>
 
   <article className={styles.article}>
-   <h2>Our Vision</h2>
-   <p>North Africa is home to hundreds of millions of people, thousands of companies, diverse economies, ancient civilizations, rapidly changing societies, and enormous untapped potential.</p>
-   <p>Yet information about the region remains fragmented across financial exchanges, government websites, databases, news outlets, research papers, and countless disconnected sources.</p>
-   <p><strong>Koshary and Couscous exists to bring that information together.</strong></p>
-   <p>We are building a single, structured, data-driven platform where people can understand North Africa — its <strong>markets, companies, economies, history, geography, culture, people, governments, and data.</strong></p>
-   <p>We are starting with financial markets because markets provide one of the clearest ways to understand an economy.</p>
-   <p>Our first product is therefore a comprehensive platform for North African stocks and companies: prices, market capitalization, historical performance, financial information, company profiles, and transparent data.</p>
-   <p>But the ambition goes far beyond stocks.</p>
-   <p>Over time, Koshary and Couscous will evolve into a <strong>living information layer for North Africa</strong> — connecting financial data with economic, geographic, historical, cultural, and demographic information to create a deeper understanding of the region.</p>
-   <p>We want someone researching Egypt, Morocco, Tunisia, Algeria, Libya, or eventually the wider region to be able to come to one place and understand:</p>
-   <div className={styles.questions}>
-    <strong>What is happening?</strong><strong>Who are the important companies and people?</strong><strong>How does the economy work?</strong><strong>Where is the region heading?</strong><strong>And how did it get here?</strong>
-   </div>
-   <p>Our goal is not simply to collect information.</p>
-   <p><strong>Our goal is to organize North Africa's information into something understandable, searchable, comparable, and useful.</strong></p>
-   <p>We believe the region deserves world-class digital infrastructure for its information.</p>
-   <p><strong>Koshary and Couscous is building it.</strong></p>
+   <div className="eyebrow">01 / The idea</div>
+   <h2>We are building a home for North Africa.</h2>
+   <p>A place where you can discover Egypt without forgetting Libya.</p>
+   <p>Where Tunisia can lead you toward Algeria.</p>
+   <p>Where Morocco is not the end of the map, but another part of the same story.</p>
+   <p>A place where history connects to the present.</p>
+   <p>Where culture connects to economics.</p>
+   <p>Where companies connect to cities.</p>
+   <p>Where markets connect to people.</p>
+   <p>Where information connects the region.</p>
+   <div className={styles.manifestoLine}><strong>One place. One region. Thousands of stories.</strong></div>
   </article>
 
   <section className={styles.section}>
-   <div className="eyebrow">01 / Foundation</div>
+   <div className="eyebrow">02 / Where we begin</div>
    <h2>We start with markets.</h2>
-   <p className={styles.sectionIntro}>Financial markets are one of the clearest windows into an economy.</p>
-   <p>They reveal where capital is flowing, which companies are growing, how industries are evolving, and how investors value the businesses shaping the region.</p>
-   <p>That is why markets are the foundation of Koshary and Couscous.</p>
-   <p>But they are only the beginning.</p>
-   <div className={styles.sequence} aria-label="Platform development sequence">{['Markets','Companies','Economy','Data','History','Geography','Culture','People','North Africa'].map((item,index)=><div key={item} className={styles.sequenceItem}><span>{String(index+1).padStart(2,'0')}</span><strong>{item}</strong></div>)}</div>
+   <p>Because markets tell stories.</p>
+   <p>Behind every company is an industry.</p>
+   <p>Behind every industry is an economy.</p>
+   <p>Behind every economy are millions of people.</p>
+   <p>And behind every number is a country with a history, a culture, a future and an ambition.</p>
+   <p>We started by looking at markets.</p>
+   <p>But we quickly realized that markets were only the beginning.</p>
+   <p>There is a much bigger picture waiting to be connected.</p>
   </section>
 
   <section className={styles.section}>
-   <div className="eyebrow">02 / Platform</div>
-   <h2>What we are building.</h2>
-   <div className={styles.areaGrid}>{areas.map(([title,description])=><div className={styles.area} key={title}><h3>{title}</h3><p>{description}</p></div>)}</div>
+   <div className="eyebrow">03 / Understanding</div>
+   <h2>We want to make North Africa understandable.</h2>
+   <p>Information about our region is everywhere.</p>
+   <p>But it is fragmented.</p>
+   <p>One website tells you about a company. Another tells you about a city. Another tells you about history. Another gives you economic statistics. Another shows you a map. Another tells you where to travel.</p>
+   <p className={styles.emphasis}>The story is scattered.</p>
+   <p>We want to bring the pieces together.</p>
+   <p>Not to make the world smaller.</p>
+   <p>But to make it easier to understand.</p>
   </section>
 
   <section className={styles.section}>
-   <div className="eyebrow">03 / Geography</div>
-   <h2>Starting with North Africa.</h2>
-   <p className={styles.sectionIntro}>Koshary and Couscous begins with five countries at the heart of North Africa: Egypt, Libya, Tunisia, Algeria and Morocco.</p>
-   <p>Each country has its own history, economy, culture and identity.</p>
-   <p>But they are also connected by geography, trade, migration, language, history and shared regional dynamics.</p>
-   <p>Koshary and Couscous is designed to make both the differences and the connections easier to understand.</p>
-   <div className={styles.countryGrid}>{countries.map(([flag,name])=><div className={styles.country} key={name}><span aria-hidden="true">{flag}</span><strong>{name}</strong></div>)}</div>
+   <div className="eyebrow">04 / Connection</div>
+   <h2>We believe information can create connection.</h2>
+   <p>A person in Cairo should be able to discover Tunis.</p>
+   <p>Someone in Casablanca should be able to understand Alexandria.</p>
+   <p>Someone in Algiers should be able to explore Tripoli.</p>
+   <p>Someone in Sfax should be able to discover Marrakesh.</p>
+   <p>And someone from anywhere in the world should be able to open one place and begin understanding <strong>North Africa.</strong></p>
+   <p>Because you cannot love what you cannot discover.</p>
+   <p>And you cannot connect with what you cannot understand.</p>
   </section>
 
-  <section className={`${styles.section} ${styles.integrity}`}>
-   <div className="eyebrow">04 / Data integrity</div>
-   <h2>Built on trustworthy information.</h2>
-   <div className={styles.principleLead}><strong>Verified data first.</strong><strong>Clear presentation second.</strong><strong>Scale without duplication.</strong></div>
-   <p>We do not believe a larger database is automatically a better database.</p>
-   <p>Information should be traceable, understandable and honest about its limitations.</p>
-   <p>When reliable data exists, we present it clearly.</p>
-   <p>When a value is calculated, we explain how.</p>
-   <p>When data is unavailable, we do not invent it.</p>
-   <p>When sources differ, methodology matters.</p>
-   <div className={styles.principles}><div className="eyebrow">Our principles</div><ul>{principles.map(item=><li key={item}>{item}</li>)}</ul></div>
+  <section className={`${styles.section} ${styles.countries}`}>
+   <div className="eyebrow">05 / Five countries</div>
+   <h2>One region.</h2>
+   <p>Egypt. Libya. Tunisia. Algeria. Morocco.</p>
+   <p>Five modern states.</p>
+   <p>Thousands of years of shared history.</p>
+   <p>Different identities. Different languages and dialects. Different economies. Different experiences.</p>
+   <p>Yet countless connections running beneath the surface.</p>
+   <p>We don't want to erase those differences.</p>
+   <p className={styles.emphasis}>We want to reveal the connections between them.</p>
+   <div className={styles.countryGrid}>
+    {['🇪🇬 Egypt','🇱🇾 Libya','🇹🇳 Tunisia','🇩🇿 Algeria','🇲🇦 Morocco'].map(country=><div className={styles.country} key={country}>{country}</div>)}
+   </div>
+  </section>
+
+  <section className={`${styles.section} ${styles.idea}`}>
+   <div className="eyebrow">06 / The United States of North Africa</div>
+   <h2>An idea before it is anything else.</h2>
+   <p>This is not a political project.</p>
+   <p>It is not a government.</p>
+   <p>It is not a proposal to redraw borders.</p>
+   <p>It is an idea.</p>
+   <p>A way of looking at the region.</p>
+   <p>A belief that North Africa can be understood as something larger than the sum of its countries.</p>
+   <p>A digital space where the borders become less important than the connections.</p>
+   <div className={styles.manifestoLine}><strong>The United States of North Africa is an idea before it is anything else.</strong></div>
+   <p className={styles.largeQuote}>We belong to the same story.</p>
+  </section>
+
+  <section className={styles.section}>
+   <div className="eyebrow">07 / How we build</div>
+   <h2>We want to build slowly.</h2>
+   <p>We don't want to pretend that we already have everything.</p>
+   <p>We don't.</p>
+   <p>There is a tremendous amount of work ahead.</p>
+   <p>More data. More history. More cities. More companies. More maps. More languages. More stories. More people. More connections.</p>
+   <p>We will build them one by one.</p>
+   <p>And we will care about the details.</p>
+   <p>Because if we are going to build something for an entire region, <strong>it deserves to be built properly.</strong></p>
+  </section>
+
+  <section className={styles.section}>
+   <div className="eyebrow">08 / Curiosity</div>
+   <h2>We believe in curiosity.</h2>
+   <p>Curiosity about where we came from.</p>
+   <p>Curiosity about who we are.</p>
+   <p>Curiosity about our neighbors.</p>
+   <p>Curiosity about what we can become.</p>
+   <p>We want a young person discovering the history of Carthage to become curious about Tunisia.</p>
+   <p>Someone studying an Egyptian company to discover the Moroccan market.</p>
+   <p>A traveler searching for the Sahara to discover the cultures that surround it.</p>
+   <p>An investor comparing economies to discover the people behind the numbers.</p>
+   <p className={styles.emphasis}>Curiosity is where connection begins.</p>
+  </section>
+
+  <section className={`${styles.section} ${styles.future}`}>
+   <div className="eyebrow">09 / The future</div>
+   <h2>And this is only the beginning.</h2>
+   <p>Today, we are building a website.</p>
+   <p>Tomorrow, we want to build an information layer for an entire region.</p>
+   <p>A place where markets, history, economics, travel, culture, geography and people are not isolated subjects.</p>
+   <p>They are connected.</p>
+   <p>Because that's how the real world works.</p>
+   <p className={styles.largeQuote}>Everything is connected.</p>
+   <div className={styles.connectionList}>
+    <span>A company is connected to an economy.</span>
+    <span>An economy is connected to a city.</span>
+    <span>A city is connected to its people.</span>
+    <span>People are connected to culture.</span>
+    <span>Culture is connected to history.</span>
+    <span>And history is connected to everything that comes next.</span>
+   </div>
   </section>
 
   <section className={`${styles.section} ${styles.ambition}`}>
-   <div className="eyebrow">05 / Long-term ambition</div>
-   <h2>A platform for understanding the region.</h2>
-   <p className={styles.sectionIntro}>The long-term goal is simple:</p>
-   <p>If someone wants to understand North Africa, they should have a place to start.</p>
-   <p>A place where financial markets connect to companies.</p>
-   <p>Companies connect to industries.</p>
-   <p>Industries connect to economies.</p>
-   <p>Economies connect to geography and history.</p>
-   <p>And all of it connects to the people who shape the region.</p>
-   <div className={styles.motto}><span>One region.</span><span>One information layer.</span><span>One platform.</span></div>
+   <div className="eyebrow">10 / The ambition</div>
+   <h2>We don't know exactly how far this can go.</h2>
+   <p>And that's part of the point.</p>
+   <p>We don't want to build something small enough to know its ending.</p>
+   <p>We want to build something that can grow with the region.</p>
+   <p>Something that can become more useful every year.</p>
+   <p>Something that future generations can look back at and say:</p>
+   <div className={styles.largeQuote}>This helped us see our region differently.</div>
   </section>
 
-  <section className={styles.section}>
-   <div className="eyebrow">06 / The future</div>
-   <h2>This is only the beginning.</h2>
-   <p>Today, Koshary and Couscous begins with markets.</p>
-   <p>Tomorrow, it can become something much larger.</p>
-   <p>A place to research a company.</p>
-   <p>Understand an economy.</p>
-   <p>Explore a country.</p>
-   <p>Study a civilization.</p>
-   <p>Discover a city.</p>
-   <p>Compare regions.</p>
-   <p>Follow the movement of capital.</p>
-   <p>Understand the forces shaping North Africa.</p>
-   <p>And eventually, understand the region as a connected whole.</p>
-   <div className={styles.final}><p>North Africa deserves world-class digital infrastructure for its information.</p><strong>Koshary and Couscous is building it.</strong></div>
+  <section className={`${styles.finalSection} ${styles.section}`}>
+   <div className="eyebrow">11 / Our beginning</div>
+   <h2>This is our beginning.</h2>
+   <p>We start with markets.</p>
+   <p>We expand into information.</p>
+   <p>We connect the countries.</p>
+   <p>We document the stories.</p>
+   <p>We make the data understandable.</p>
+   <p>We make the region easier to explore.</p>
+   <p>And slowly, piece by piece,</p>
+   <div className={styles.finalStatement}>we build a digital home for North Africa.</div>
+   <p>Not for one country.</p>
+   <p>Not for one generation.</p>
+   <p>Not for one kind of person.</p>
+   <p className={styles.largeQuote}>For everyone.</p>
+  </section>
+
+  <section className={styles.food}>
+   <h2>Koshary and Couscous.</h2>
+   <p>Two foods.</p>
+   <p>Two words.</p>
+   <p>A little strange together.</p>
+   <p>And somehow, perfectly North African.</p>
+   <p>Because this region has always been a meeting place.</p>
+   <p>Of civilizations.</p>
+   <p>Of languages.</p>
+   <p>Of cultures.</p>
+   <p>Of people.</p>
+   <p>Of ideas.</p>
+   <div className={styles.closingThought}>
+    <strong>We are different.</strong>
+    <strong>We are connected.</strong>
+    <strong>And there is something beautiful about both being true at the same time.</strong>
+   </div>
+  </section>
+
+  <section className={styles.closing}>
+   <div className={styles.closingTitle}>The United States of North Africa.</div>
+   <div className={styles.closingSub}>Five countries. One region. One shared story. And a future that has not been written yet.</div>
+   <div className={styles.closingPromise}>We want to help tell it.</div>
+   <div className={styles.closingLove}>We love koshary and couscous.<br/>We love North Africa.<br/>We love you all.</div>
   </section>
 
   <nav className={styles.cta} aria-label="Explore Koshary and Couscous">
