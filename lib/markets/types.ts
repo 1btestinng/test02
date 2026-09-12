@@ -31,12 +31,38 @@ export type MarketCompany = {
   price?: number;
   previousClose?: number;
   changePercent?: number;
+  open?: number;
+  high?: number;
+  low?: number;
+  volume?: number;
   sharesOutstanding?: number;
   marketCapLocal?: number;
   marketCapUSD?: number;
   marketCapSource?: 'provider' | 'calculated';
   timestamp?: string;
   dataSource?: string;
+  providerTicker?: string;
+};
+
+export type HistoricalPricePoint = {
+  date: string;
+  open?: number;
+  high?: number;
+  low?: number;
+  close: number;
+  adjustedClose?: number;
+  volume?: number;
+};
+
+export type CompanyMarketData = {
+  quote: Partial<MarketCompany>;
+  history: HistoricalPricePoint[];
+  source: string;
+  retrievedAt: string;
+  delay: string;
+  providerTicker?: string;
+  historyAvailable: boolean;
+  error?: string;
 };
 
 export type MarketSummary = {
