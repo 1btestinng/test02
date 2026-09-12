@@ -6,8 +6,9 @@ const allowedTop=[10,20,50,100,200,300,400,500,1000];
 const country=(value:string|undefined)=>value&&hasMarket(value.toUpperCase())?value.toUpperCase():'EG';
 
 export async function generateMetadata({searchParams}:{searchParams:Promise<{country?:string}>}):Promise<Metadata>{
-  const {country:raw}=await searchParams;const market=getMarket(country(raw));
-  return {title:`iStocks — ${market.config.countryName} Stock Market Rankings`,description:`Track ${market.config.countryName}'s listed companies by market capitalization on the ${market.config.exchangeName}.`};
+  country(searchParams ? undefined : undefined);
+  const {country:raw}=await searchParams;getMarket(country(raw));
+  return {title:'iStocks - North Africa',description:'The United States of North Africa'};
 }
 
 export default async function Home({searchParams}:{searchParams:Promise<{country?:string;top?:string;sector?:string;search?:string;exchange?:string}>}){
