@@ -4,21 +4,24 @@ import type {Metadata} from 'next';
 import Script from 'next/script';
 import NorthAfricaShell from '@/components/navigation/north-africa-shell';
 
+const description = 'North Africa Hub is a connected research platform covering North Africa’s markets, companies, countries, geography, history, civilizations and people.';
+
 export const metadata: Metadata = {
-  title: 'Koshary and Couscous',
-  description: 'Koshary and Couscous is a North Africa information and intelligence platform covering markets, history, economy, travel, culture, geography, people, and data.',
+  title: 'North Africa Hub',
+  description,
+  applicationName: 'North Africa Hub',
+  metadataBase: new URL('https://egystocks.vercel.app'),
   openGraph: {
-    title: 'Koshary and Couscous',
-    description: 'Koshary and Couscous is a North Africa information and intelligence platform covering markets, history, economy, travel, culture, geography, people, and data.',
-    siteName: 'Koshary and Couscous',
+    title: 'North Africa Hub',
+    description,
+    siteName: 'North Africa Hub',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Koshary and Couscous',
-    description: 'Koshary and Couscous is a North Africa information and intelligence platform covering markets, history, economy, travel, culture, geography, people, and data.',
+    title: 'North Africa Hub',
+    description,
   },
-  applicationName: 'Koshary and Couscous',
 };
 
 export default function RootLayout({children}:{children:React.ReactNode}) {
