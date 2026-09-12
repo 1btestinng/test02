@@ -1,4 +1,5 @@
 import type {HistoricalPricePoint,MarketCompany} from '@/lib/markets/types';
+import {getNorthAfricaHistoricalPrices} from '@/lib/north-africa-history';
 
 type YahooChartResult={timestamp?:number[];indicators?:{quote?:Array<{close?:Array<number|null>}>};meta?:{symbol?:string}};
 type YahooChartResponse={chart?:{result?:YahooChartResult[];error?:{description?:string}|null}};
@@ -52,16 +53,11 @@ async function resolve(company:MarketCompany){
     const suffixMatches=suffix?equities.filter(q=>q.symbol!.toUpperCase().endsWith(suffix)):[];
     const tickerMatches=equities.filter(q=>tickerBase(q.symbol!)===clean);
     const nameMatches=equities.filter(q=>nameScore(company,q)>0);
-    for(const q of [...exact,...suffixMatches,...tickerMatches,...nameMatches]){
-      if(q.symbol&&!candidates.includes(q.symbol))candidates.push(q.symbol);
-    }
+    for(const q of [...exact,...suffixMatches,...tickerMatches,...nameMatches])if(q.symbol&&!candidates.includes(q.symbol))candidates.push(q.symbol);
   }catch{}
 
   for(const symbol of candidates){
-    try{
-      const result=await chart(symbol);
-      if((result.timestamp?.length??0)>1)return symbol;
-    }catch{}
+    try{const result=await chart(symbol);if((result.timestamp?.length??0)>1)return symbol;}catch{}
   }
   return undefined;
 }
@@ -80,11 +76,21 @@ function normalize(result:YahooChartResult):HistoricalPricePoint[]{
 
 export async function getCompanyMaxHistory(company:MarketCompany){
   const symbol=await resolve(company);
-  if(!symbol)return {history:[] as HistoricalPricePoint[],providerTicker:undefined as string|undefined,error:`No compatible Yahoo Finance historical symbol was found for ${company.countryCode} ${company.ticker}.`};
-  try{
-    const points=normalize(await chart(symbol));
-    return {history:points,providerTicker:symbol,error:points.length?'':`Yahoo Finance returned no historical observations for ${symbol}.`};
-  }catch(error){
-    return {history:[] as HistoricalPricePoint[],providerTicker:symbol,error:error instanceof Error?error.message:'Unknown historical market-data provider error'};
+  if(symbol){
+    try{
+      const points=normalize(await chart(symbol));
+      if(points.length>1)return {history:points,providerTicker:symbol,error:''};
+    }catch{}
   }
+
+  const fallback=await getNorthAfricaHistoricalPrices(company);
+  if(fallback.history.length>1){
+    return {history:fallback.history,providerTicker:fallback.source,error:''};
+  }
+
+  return {
+    history:[] as HistoricalPricePoint[],
+    providerTicker:symbol,
+    error:fallback.error??`No verified historical market-data provider returned usable data for ${company.countryCode} ${company.ticker}.`
+  };
 }
