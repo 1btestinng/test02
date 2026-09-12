@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import {notFound} from 'next/navigation';
-import {formatMarketCap,formatPrice,getMarket,getMarketCompanySync,getMarketCompanies,rankMarketCompanies} from '@/lib/markets/registry';
+import {getMarket,getMarketCompanySync,getMarketCompanies,rankMarketCompanies} from '@/lib/markets/registry';
 import CompanyIntelligence from '@/components/company-intelligence';
 
 function resolveSegments(segments:string[]){return segments.length===1?{country:'EG',ticker:segments[0]}:segments.length===2?{country:segments[0],ticker:segments[1]}:null;}
@@ -34,7 +34,6 @@ export default async function CompanyPage({params}:{params:Promise<{segments:str
     <header className="header"><Link href={`/?country=${market.config.countryCode}`} className="brand">iStocks</Link><Link href={`/?country=${market.config.countryCode}`} className="muted" style={{fontSize:12}}>Back to ranking</Link></header>
     <main className="detail">
       <CompanyIntelligence company={c} exchangeName={market.config.exchangeName} countryName={`${market.config.flag} ${market.config.countryName}`} currency={market.config.currencyCode} lastUpdated={lastUpdated} dataSource={c.dataSource??market.config.dataSource} delay={market.config.delay}/>
-      <div className="companyLegacyFacts"><div><span className="sub">Rank</span><strong>#{String(c.rank??'—').padStart(2,'0')}</strong></div><div><span className="sub">Local market cap</span><strong>{formatMarketCap(c.marketCapLocal,market.config.currencyCode)}</strong></div><div><span className="sub">USD market cap</span><strong>{formatMarketCap(c.marketCapUSD,'USD')}</strong></div><div><span className="sub">Shares outstanding</span><strong>{c.sharesOutstanding?.toLocaleString('en-US')??'—'}</strong></div></div>
       <p className="sub" style={{marginTop:24,lineHeight:1.7}}>Data source: {c.dataSource??market.config.dataSource}. {market.config.delay}. Last quote: {lastUpdated}. Missing provider values are shown as — rather than fabricated.</p>
     </main>
   </div>;
