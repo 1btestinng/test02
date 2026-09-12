@@ -40,12 +40,20 @@ function extractSymbolId(resource:JsonApiResource,response:JsonApiResponse){
   const direct=resource.relationships?.symbol?.data;
   const directId=Array.isArray(direct)?direct[0]?.id:direct?.id;
   if(directId)return directId;
+
   const included=response.included??[];
+  const resourceSymbol=asString(resource.attributes?.symbol)?.toUpperCase();
   const includedSymbol=included.find(item=>item.type==='symbol'&&(
-    asString(item.attributes?.symbol)?.toUpperCase()===asString(resource.attributes?.symbol)?.toUpperCase() ||
+    asString(item.attributes?.symbol)?.toUpperCase()===resourceSymbol ||
     item.id===resource.id
   ));
-  return includedSymbol?.id;
+  if(includedSymbol?.id)return includedSymbol.id;
+
+  // Some versions of the CSE JSON:API response expose the internal symbol
+  // identifier directly on the instrument resource instead of as a
+  // relationship. Keep this as the final resolution path rather than
+  // silently falling through to a less authoritative provider.
+  return resource.id;
 }
 
 async function resolveInstrument(ticker:string){
