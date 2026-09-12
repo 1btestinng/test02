@@ -1,56 +1,106 @@
 'use client';
 
 import {useMemo,useState} from 'react';
-import type {ReactNode} from 'react';
-import type {CompanyFinancialData,FinancialValue,HistoricalPricePoint,MarketCompany} from '@/lib/markets/types';
+import type {MarketCompany,HistoricalPricePoint} from '@/lib/markets/types';
 import {filterHistoryByRange} from '@/lib/company-chart-utils';
 import AdvancedFinancialChart from '@/components/advanced-financial-chart';
 
-type Metric='Price'|'Market Cap'|'P/E'|'P/S'|'Revenue'|'Earnings'|'EPS';
+type Metric='Price'|'Market Cap';
 type Range='1D'|'1W'|'1M'|'3M'|'6M'|'1Y'|'3Y'|'5Y'|'MAX';
-const metrics:Metric[]=['Price','Market Cap','P/E','P/S','Revenue','Earnings','EPS'];
+const metrics:Metric[]=['Price','Market Cap'];
 const ranges:Range[]=['1D','1W','1M','3M','6M','1Y','3Y','5Y','MAX'];
-function fmt(value:number|undefined,maximumFractionDigits=2){if(value===undefined||!Number.isFinite(value))return '—';return value.toLocaleString('en-US',{maximumFractionDigits});}
-function pct(value:number|undefined){return value===undefined||!Number.isFinite(value)?'—':`${(value*100).toFixed(2)}%`;}
-function compact(value:number|undefined,currency='USD'){if(value===undefined||!Number.isFinite(value))return '—';const prefix=currency==='USD'?'$':currency?`${currency} `:'';const abs=Math.abs(value);if(abs>=1e12)return `${prefix}${(value/1e12).toFixed(2)}T`;if(abs>=1e9)return `${prefix}${(value/1e9).toFixed(2)}B`;if(abs>=1e6)return `${prefix}${(value/1e6).toFixed(0)}M`;return `${prefix}${Math.round(value).toLocaleString('en-US')}`;}
-function Section({title,children}:{title:string;children:ReactNode}){return <section className="intelSection"><div className="intelSectionTitle">{title}</div>{children}</section>}
-function MetricGrid({items}:{items:Array<{label:string;value:string;note?:string}>}){return <div className="metricGrid">{items.map(item=><div className="metricCell" key={item.label}><span>{item.label}</span><strong className="mono">{item.value}</strong>{item.note&&<small>{item.note}</small>}</div>)}</div>}
-function Missing({children='Not available'}){return <span className="missing">{children}</span>}
-function fv(data:FinancialValue|undefined){return data?.value;}
-function fvText(data:FinancialValue|undefined,currency?:string){const value=fv(data);if(value===undefined)return '—';return currency?`${currency} ${fmt(value)}`:fmt(value);}
-function fvCompact(data:FinancialValue|undefined,currency:string){return compact(fv(data),currency);}
-function note(data:FinancialValue|undefined){if(!data)return undefined;return `${data.methodology==='calculated'?'Calculated':'Provider supplied'}${data.period?` · ${data.period}`:''}`;}
-function fV(data:FinancialValue|undefined){const value=fv(data);return value===undefined?'—':`${value.toFixed(2)}×`;}
 
-export default function CompanyIntelligence({company,history,financials,exchangeName,countryName,currency,fxRate,lastUpdated,dataSource,delay,providerTicker,dataError}:{company:MarketCompany;history:HistoricalPricePoint[];financials?:CompanyFinancialData;exchangeName:string;countryName:string;currency:string;fxRate?:number;lastUpdated:string;dataSource:string;delay:string;providerTicker?:string;dataError?:string}){
+function fmt(value:number|undefined,maximumFractionDigits=2){
+  if(value===undefined||!Number.isFinite(value))return '—';
+  return value.toLocaleString('en-US',{maximumFractionDigits});
+}
+
+function compact(value:number|undefined,currency='USD'){
+  if(value===undefined||!Number.isFinite(value))return '—';
+  const prefix=currency==='USD'?'$':currency?`${currency} `:'';
+  const abs=Math.abs(value);
+  if(abs>=1e12)return `${prefix}${(value/1e12).toFixed(2)}T`;
+  if(abs>=1e9)return `${prefix}${(value/1e9).toFixed(2)}B`;
+  if(abs>=1e6)return `${prefix}${(value/1e6).toFixed(0)}M`;
+  return `${prefix}${Math.round(value).toLocaleString('en-US')}`;
+}
+
+function MetricGrid({items}:{items:Array<{label:string;value:string;note?:string}>}){
+  return <div className="metricGrid">{items.map(item=><div className="metricCell" key={item.label}><span>{item.label}</span><strong className="mono">{item.value}</strong>{item.note&&<small>{item.note}</small>}</div>)}</div>;
+}
+
+export default function CompanyIntelligence({company,history,exchangeName,countryName,currency,fxRate,lastUpdated,dataSource,delay,providerTicker,dataError}:{company:MarketCompany;history:HistoricalPricePoint[];exchangeName:string;countryName:string;currency:string;fxRate?:number;lastUpdated:string;dataSource:string;delay:string;providerTicker?:string;dataError?:string}){
   const [metric,setMetric]=useState<Metric>('Price');
-  const [range,setRange]=useState<Range>('1Y');
-  const [period,setPeriod]=useState<'Annual'|'Quarterly'>('Annual');
+  const [range,setRange]=useState<Range>('MAX');
   const [logoFailed,setLogoFailed]=useState(false);
+
   const visibleHistory=useMemo(()=>filterHistoryByRange(history,range),[history,range]);
-  const quote=company.price;const change=company.changePercent;const changeText=change===undefined?'—':`${change>0?'+':''}${change.toFixed(2)}%`;const hasPriceHistory=history.length>1;const f=financials;
-  const providerShares=f?.shareholder.sharesOutstanding?.value;
+  const quote=company.price;
+  const change=company.changePercent;
+  const changeText=change===undefined?'—':`${change>0?'+':''}${change.toFixed(2)}%`;
+  const hasPriceHistory=history.length>1;
+
+  const providerShares=company.sharesOutstanding;
   const impliedShares=company.marketCapLocal!==undefined&&quote!==undefined&&quote>0?company.marketCapLocal/quote:undefined;
-  const shares=company.sharesOutstanding??providerShares??impliedShares;
-  const sharesAreImplied=company.sharesOutstanding===undefined&&providerShares===undefined&&impliedShares!==undefined;
+  const shares=providerShares??impliedShares;
+  const sharesAreImplied=providerShares===undefined&&impliedShares!==undefined;
   const chartFxRate=fxRate??(company.marketCapLocal!==undefined&&company.marketCapUSD!==undefined&&company.marketCapUSD>0?company.marketCapLocal/company.marketCapUSD:undefined);
   const usdPrice=quote!==undefined&&chartFxRate&&chartFxRate>0?quote/chartFxRate:undefined;
   const currentMarketCapLocal=company.marketCapLocal;
   const usdMarketCap=currentMarketCapLocal!==undefined&&chartFxRate&&chartFxRate>0?currentMarketCapLocal/chartFxRate:company.marketCapUSD;
+
   const marketCapHistory=useMemo(()=>shares!==undefined?visibleHistory.filter(point=>Number.isFinite(point.close)).map(point=>({date:point.date,value:point.close*shares})):[],[visibleHistory,shares]);
   const priceChartPoints=useMemo(()=>visibleHistory.filter(point=>Number.isFinite(point.close)).map(point=>({date:point.date,value:point.close})),[visibleHistory]);
-  const financialRows:Array<[string,FinancialValue|undefined]>=[['Revenue',f?.incomeStatement.revenue],['Gross Profit',f?.incomeStatement.grossProfit],['Operating Income',f?.incomeStatement.operatingIncome],['EBITDA',f?.incomeStatement.ebitda],['Net Income',f?.incomeStatement.netIncome],['EPS',f?.incomeStatement.eps],['Cash',f?.balanceSheet.cash],['Total Debt',f?.balanceSheet.totalDebt],['Total Assets',f?.balanceSheet.totalAssets],['Total Liabilities',f?.balanceSheet.totalLiabilities],['Equity',f?.balanceSheet.equity],['Operating Cash Flow',f?.cashFlow.operatingCashFlow],['Capital Expenditure',f?.cashFlow.capitalExpenditure],['Free Cash Flow',f?.cashFlow.freeCashFlow]];
+
   const logoUrl=`https://s3-symbol-logo.tradingview.com/${company.ticker.toLowerCase().replace(/[^a-z0-9.-]/g,'')}.svg`;
+
   return <div className="companyIntel">
-    <div className="companyHero"><div className="companyHeroMain"><div className="eyebrow">{countryName} · {company.exchangeCode}</div><div className="companyHeroIdentity"><div className="companyHeroMark">{!logoFailed&&<img src={logoUrl} alt={`${company.name} logo`} loading="lazy" decoding="async" onError={()=>setLogoFailed(true)} />}{logoFailed&&company.name.slice(0,2).toUpperCase()}</div><div><h1>{company.name}</h1><div className="companySubline">{company.ticker} · {company.sector??'—'} · {exchangeName}</div></div></div></div><div className="companyHeroQuote"><div className="heroPrice mono">{quote===undefined?'—':`${currency} ${fmt(quote)}`}</div><div className="companyUsdQuote mono">{usdPrice===undefined?'USD —':`$${fmt(usdPrice)}`}</div><div className={change===undefined?'muted':change>=0?'positive':'negative'}>{changeText}</div></div></div>
-    <div className="dataStatus"><span>● {delay}</span><span>Last updated {lastUpdated}</span><span>Source: {dataSource}</span>{providerTicker&&<span>Symbol: {providerTicker}</span>}{chartFxRate!==undefined&&<span>FX: {fmt(chartFxRate,4)} {currency}/USD</span>}</div>{dataError&&<div className="dataNote" style={{border:'1px solid var(--line)',padding:'12px 14px',marginTop:14}}><strong>Some provider data is unavailable.</strong> {dataError}</div>}
-    <section className="intelChartPanel"><div className="chartHeader"><div><div className="intelSectionTitle">Historical intelligence</div><div className="chartMetricLabel">{metric}</div></div><div className="controlGroup">{ranges.map(r=><button type="button" key={r} className={range===r?'control active':'control'} onClick={()=>setRange(r)}>{r}</button>)}</div></div><div className="metricTabs">{metrics.map(m=><button type="button" key={m} className={metric===m?'metricTab active':'metricTab'} onClick={()=>setMetric(m)}>{m}</button>)}</div>{metric==='Price'?<AdvancedFinancialChart points={priceChartPoints} interactionPoints={priceChartPoints} localCurrency={currency} fxRate={chartFxRate}/>:metric==='Market Cap'&&shares!==undefined?<AdvancedFinancialChart points={marketCapHistory} interactionPoints={marketCapHistory} localCurrency={currency} fxRate={chartFxRate} marketCap/>:<div className="emptyChart"><div><strong>{metric} history unavailable</strong><p>No verified historical {metric.toLowerCase()} dataset is currently connected. Current {metric} data, where available, is shown below.</p></div></div>}{hasPriceHistory&&metric==='Price'&&<div className="dataNote">{priceChartPoints.length.toLocaleString('en-US')} complete visible observations rendered. Tooltip selection always uses the exact underlying visible observation; no interpolation or fabricated values are used.</div>}{metric==='Market Cap'&&marketCapHistory.length>1&&<div className="dataNote">{marketCapHistory.length.toLocaleString('en-US')} complete visible observations · Historical market cap is calculated as historical share price × current shares outstanding. {sharesAreImplied?'When a provider share-count field is unavailable, the current market-cap snapshot divided by the current verified price is used as an explicitly calculated implied share count.':'Provider share count is used when available.'}</div>}</section>
-    <Section title="Key metrics"><MetricGrid items={[{label:'Market Cap',value:compact(currentMarketCapLocal,currency),note:company.marketCapSource==='calculated'?'Calculated from price × shares':'Provider/snapshot'},{label:'USD Market Cap',value:compact(usdMarketCap,'USD'),note:chartFxRate!==undefined?'Converted using current market FX reference':'Provider/snapshot'},{label:'Price',value:quote===undefined?'—':`${currency} ${fmt(quote)}`},{label:'USD Price',value:usdPrice===undefined?'—':`$${fmt(usdPrice)}`},{label:'Shares Outstanding',value:shares?.toLocaleString('en-US')??'—',note:sharesAreImplied?'Calculated implied share count':'Provider supplied'},{label:'Previous Close',value:company.previousClose===undefined?'—':`${currency} ${fmt(company.previousClose)}`},{label:'Open',value:company.open===undefined?'—':`${currency} ${fmt(company.open)}`},{label:'High',value:company.high===undefined?'—':`${currency} ${fmt(company.high)}`},{label:'Low',value:company.low===undefined?'—':`${currency} ${fmt(company.low)}`},{label:'Volume',value:company.volume===undefined?'—':company.volume.toLocaleString('en-US')}]}/></Section>
-    <Section title="Valuation"><MetricGrid items={[{label:'P/E',value:fV(f?.valuation.pe),note:note(f?.valuation.pe)},{label:'P/S',value:fV(f?.valuation.ps),note:note(f?.valuation.ps)},{label:'P/B',value:fV(f?.valuation.pb),note:note(f?.valuation.pb)},{label:'P/FCF',value:'—',note:'No verified provider value'},{label:'EV / Revenue',value:fV(f?.valuation.evRevenue),note:note(f?.valuation.evRevenue)},{label:'EV / EBITDA',value:fV(f?.valuation.evEbitda),note:note(f?.valuation.evEbitda)}]}/><p className="dataNote">Valuation values are provider-supplied and period-labelled. Missing values remain unavailable rather than being estimated.</p></Section>
-    <Section title="Financial statements"><div className="periodBar"><button type="button" className={period==='Annual'?'period active':'period'} onClick={()=>setPeriod('Annual')}>Annual</button><button type="button" className={period==='Quarterly'?'period active':'period'} onClick={()=>setPeriod('Quarterly')}>Quarterly</button></div><div className="financialTableWrap"><table className="financialTable"><thead><tr><th>Metric</th><th>Value</th><th>Period</th><th>Currency</th></tr></thead><tbody>{financialRows.map(([label,data])=><tr key={label}><th>{label}</th><td>{data?fvCompact(data,currency):<Missing/>}</td><td>{data?.period??'—'}</td><td>{data?.currency??currency}</td></tr>)}</tbody></table></div><p className="dataNote">Source: {f?.source??'No verified fundamental provider'}. The current provider exposes TTM/MRQ fields for several metrics; the table never invents unavailable annual or quarterly observations.</p></Section>
-    <Section title="Profitability"><MetricGrid items={[{label:'ROE',value:pct(fv(f?.profitability.roe)),note:note(f?.profitability.roe)},{label:'ROA',value:pct(fv(f?.profitability.roa)),note:note(f?.profitability.roa)},{label:'ROIC',value:pct(fv(f?.profitability.roic)),note:note(f?.profitability.roic)},{label:'Gross Margin',value:pct(fv(f?.incomeStatement.grossMargin))},{label:'Operating Margin',value:pct(fv(f?.incomeStatement.operatingMargin))},{label:'Net Margin',value:pct(fv(f?.incomeStatement.netMargin))}]}/></Section>
-    <Section title="Balance sheet"><MetricGrid items={[{label:'Cash',value:fvCompact(f?.balanceSheet.cash,currency),note:note(f?.balanceSheet.cash)},{label:'Total Debt',value:fvCompact(f?.balanceSheet.totalDebt,currency)},{label:'Net Debt',value:fvCompact(f?.balanceSheet.netDebt,currency),note:note(f?.balanceSheet.netDebt)},{label:'Total Assets',value:fvCompact(f?.balanceSheet.totalAssets,currency)},{label:'Total Liabilities',value:fvCompact(f?.balanceSheet.totalLiabilities,currency)},{label:"Shareholders' Equity",value:fvCompact(f?.balanceSheet.equity,currency)},{label:'Book Value',value:fvCompact(f?.balanceSheet.bookValue,currency)},{label:'Book Value / Share',value:fvText(f?.balanceSheet.bookValuePerShare,currency)}]}/></Section>
-    <Section title="Cash flow"><MetricGrid items={[{label:'Operating Cash Flow',value:fvCompact(f?.cashFlow.operatingCashFlow,currency)},{label:'Capital Expenditure',value:fvCompact(f?.cashFlow.capitalExpenditure,currency)},{label:'Free Cash Flow',value:fvCompact(f?.cashFlow.freeCashFlow,currency)},{label:'FCF Margin',value:pct(fv(f?.cashFlow.fcfMargin))}]}/></Section>
-    <Section title="Shareholder data"><MetricGrid items={[{label:'Shares Outstanding',value:shares?.toLocaleString('en-US')??'—',note:sharesAreImplied?'Calculated implied share count':'Provider supplied'},{label:'Dividend / Share',value:fvText(f?.shareholder.dividendPerShare,currency)},{label:'Dividend Yield',value:pct(fv(f?.shareholder.dividendYield))},{label:'Payout Ratio',value:pct(fv(f?.shareholder.payoutRatio))},{label:'Buybacks',value:'—',note:'No verified provider value'}]}/></Section>
+    <div className="companyHero">
+      <div className="companyHeroMain">
+        <div className="eyebrow">{countryName} · {company.exchangeCode}</div>
+        <div className="companyHeroIdentity">
+          <div className="companyHeroMark">{!logoFailed&&<img src={logoUrl} alt={`${company.name} logo`} loading="lazy" decoding="async" onError={()=>setLogoFailed(true)} />}{logoFailed&&company.name.slice(0,2).toUpperCase()}</div>
+          <div><h1>{company.name}</h1><div className="companySubline">{company.ticker} · {company.sector??'—'} · {exchangeName}</div></div>
+        </div>
+      </div>
+      <div className="companyHeroQuote">
+        <div className="heroPrice mono">{quote===undefined?'—':`${currency} ${fmt(quote)}`}</div>
+        <div className="companyUsdQuote mono">{usdPrice===undefined?'USD —':`$${fmt(usdPrice)}`}</div>
+        <div className={change===undefined?'muted':change>=0?'positive':'negative'}>{changeText}</div>
+      </div>
+    </div>
+
+    <div className="dataStatus"><span>● {delay}</span><span>Last updated {lastUpdated}</span><span>Source: {dataSource}</span>{providerTicker&&<span>Symbol: {providerTicker}</span>}{chartFxRate!==undefined&&<span>FX: {fmt(chartFxRate,4)} {currency}/USD</span>}</div>
+    {dataError&&<div className="dataNote" style={{border:'1px solid var(--line)',padding:'12px 14px',marginTop:14}}><strong>Some market data is unavailable.</strong> {dataError}</div>}
+
+    <section className="intelChartPanel">
+      <div className="chartHeader">
+        <div><div className="intelSectionTitle">Historical market data</div><div className="chartMetricLabel">{metric}</div></div>
+        <div className="controlGroup">{ranges.map(r=><button type="button" key={r} className={range===r?'control active':'control'} onClick={()=>setRange(r)}>{r}</button>)}</div>
+      </div>
+      <div className="metricTabs">{metrics.map(m=><button type="button" key={m} className={metric===m?'metricTab active':'metricTab'} onClick={()=>setMetric(m)}>{m}</button>)}</div>
+      {metric==='Price'&&<AdvancedFinancialChart points={priceChartPoints} interactionPoints={priceChartPoints} localCurrency={currency} fxRate={chartFxRate}/>} 
+      {metric==='Market Cap'&&shares!==undefined&&<AdvancedFinancialChart points={marketCapHistory} interactionPoints={marketCapHistory} localCurrency={currency} fxRate={chartFxRate} marketCap/>}
+      {metric==='Market Cap'&&shares===undefined&&<div className="emptyChart"><div><strong>Market-cap history unavailable</strong><p>Verified outstanding shares are not available for this company, so historical market capitalization cannot be calculated without inventing data.</p></div></div>}
+      {metric==='Price'&&priceChartPoints.length===0&&<div className="emptyChart"><div><strong>Historical price data unavailable</strong><p>No verified historical price observations are currently connected for this company.</p></div></div>}
+      {hasPriceHistory&&metric==='Price'&&<div className="dataNote">{priceChartPoints.length.toLocaleString('en-US')} complete visible observations. MAX uses the maximum verified provider history available; no interpolation or fabricated values are used.</div>}
+      {metric==='Market Cap'&&marketCapHistory.length>1&&<div className="dataNote">{marketCapHistory.length.toLocaleString('en-US')} complete visible observations · Historical market cap is calculated as historical share price × the currently verified outstanding-share count{sharesAreImplied?' (implied from the current verified market-cap snapshot and price)':''}.</div>}
+    </section>
+
+    <section className="intelSection">
+      <div className="intelSectionTitle">Key market data</div>
+      <MetricGrid items={[
+        {label:'Market Cap',value:compact(currentMarketCapLocal,currency),note:company.marketCapSource==='calculated'?'Calculated from price × shares':'Provider/snapshot'},
+        {label:'USD Market Cap',value:compact(usdMarketCap,'USD'),note:chartFxRate!==undefined?'Converted using current market FX reference':'Provider/snapshot'},
+        {label:'Price',value:quote===undefined?'—':`${currency} ${fmt(quote)}`},
+        {label:'USD Price',value:usdPrice===undefined?'—':`$${fmt(usdPrice)}`},
+        {label:'Shares Outstanding',value:shares?.toLocaleString('en-US')??'—',note:sharesAreImplied?'Calculated implied share count':'Provider supplied'},
+        {label:'Previous Close',value:company.previousClose===undefined?'—':`${currency} ${fmt(company.previousClose)}`},
+        {label:'Open',value:company.open===undefined?'—':`${currency} ${fmt(company.open)}`},
+        {label:'High',value:company.high===undefined?'—':`${currency} ${fmt(company.high)}`},
+        {label:'Low',value:company.low===undefined?'—':`${currency} ${fmt(company.low)}`},
+        {label:'Volume',value:company.volume===undefined?'—':company.volume.toLocaleString('en-US')}
+      ]}/>
+    </section>
   </div>;
 }
