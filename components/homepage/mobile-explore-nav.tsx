@@ -16,7 +16,6 @@ export default function MobileExploreNav(){
     <nav className={styles.nav} aria-label="Explore North Africa Hub">
       <div className={styles.fade} aria-hidden="true" />
       <div className={styles.inner}>
-        <span className={styles.prompt}>Explore</span>
         <div className={styles.scroller}>
           <div className={styles.items}>
             {NAV_ITEMS.map((item)=>(
