@@ -3,13 +3,13 @@ import Link from 'next/link';
 import styles from './vision.module.css';
 
 export const metadata:Metadata={
- title:'Koshary and Couscous | Vision',
+ title:'North Africa | Vision',
  description:'Our founding vision for building a digital home for North Africa — connecting its countries, people, history, culture, economies, markets and stories.',
 };
 
 export default function VisionPage(){
  return <main className={styles.page}>
-  <div className={styles.breadcrumb}>Koshary and Couscous / Vision</div>
+  <div className={styles.breadcrumb}>North Africa / Vision</div>
 
   <section className={styles.hero}>
    <div className={styles.heroEyebrow}>OUR VISION</div>
@@ -197,7 +197,7 @@ export default function VisionPage(){
    <div className={styles.closingLove}>We love koshary and couscous.<br/>We love North Africa.<br/>We love you all.</div>
   </section>
 
-  <nav className={styles.cta} aria-label="Explore Koshary and Couscous">
+  <nav className={styles.cta} aria-label="Explore North Africa">
    <Link href="/markets" className={styles.ctaPrimary}>Explore the markets <span aria-hidden="true">→</span></Link>
    <Link href="/" className={styles.ctaSecondary}>Explore North Africa <span aria-hidden="true">→</span></Link>
   </nav>
