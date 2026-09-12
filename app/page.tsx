@@ -1,5 +1,6 @@
 import type {Metadata} from 'next';
 import InteractiveHomeHero from '@/components/homepage/interactive-home-hero';
+import MobileExploreNav from '@/components/homepage/mobile-explore-nav';
 
 export const metadata: Metadata = {
   title: 'North Africa Hub',
@@ -11,6 +12,7 @@ export default function Home() {
   return (
     <main>
       <InteractiveHomeHero />
+      <MobileExploreNav />
     </main>
   );
 }
