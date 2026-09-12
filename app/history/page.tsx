@@ -114,9 +114,22 @@ const allSections = [
  {key:'people',label:'People',items:people},
 ];
 
+function SafeImage({src,alt,className}:{src:string;alt:string;className?:string}){
+ const [failed,setFailed]=useState(!src);
+ if(failed||!src)return null;
+ return <img src={src} alt={alt} className={className} loading="lazy" decoding="async" onError={()=>setFailed(true)} />;
+}
+
+function SafeImagePanel({src,className,children}:{src:string;className:string;children?:React.ReactNode}){
+ const [failed,setFailed]=useState(!src);
+ if(failed||!src)return null;
+ return <div className={className}><img src={src} alt="" loading="lazy" decoding="async" onError={()=>setFailed(true)} />{children}</div>;
+}
+
 function Card({item,large=false}:{item:Item;large?:boolean}){
+ const [imageFailed,setImageFailed]=useState(!item.image);
  return <article className={`${styles.card} ${large?styles.cardLarge:''}`}>
-  <div className={styles.cardImage}><img src={item.image} alt="" loading="lazy" /></div>
+  {!imageFailed&&<div className={styles.cardImage}><img src={item.image} alt="" loading="lazy" decoding="async" onError={()=>setImageFailed(true)} /></div>}
   <div className={styles.cardBody}>
    <div className={styles.cardMeta}>{item.meta}</div>
    <h3>{item.title}</h3>
@@ -142,7 +155,7 @@ export default function HistoryPage(){
 
  return <main className={styles.page}>
   <section className={styles.hero}>
-   <div className={styles.heroImage}><img src={img.carthage} alt="" /></div>
+   <SafeImagePanel src={img.carthage} className={styles.heroImage} />
    <div className={styles.heroOverlay}/>
    <div className={styles.heroContent}>
     <div className={styles.eyebrow}>NORTH AFRICA · HISTORY · c. 10,000 BCE → TODAY</div>
@@ -169,13 +182,13 @@ export default function HistoryPage(){
    <div className={styles.sectionHead}><div><div className={styles.kicker}>01 · The master timeline</div><h2>Thousands of years in one view.</h2></div><p>Move through the major eras that transformed North Africa.</p></div>
    <div className={styles.timelineRail}>{eras.map((item,i)=><a href={`#era-${i}`} key={item.title} className={styles.timelineNode}><span>{item.year}</span><i/><b>{item.title}</b></a>)}</div>
    <div className={styles.eraList}>{eras.map((item,i)=><article id={`era-${i}`} className={styles.eraBlock} key={item.title}>
-    <div className={styles.eraNumber}>{String(i+1).padStart(2,'0')}</div><div><div className={styles.cardMeta}>{item.year}</div><h3>{item.title}</h3><p>{item.text}</p><div className={styles.tags}>{item.tags.map(t=><span key={t}>{t}</span>)}</div></div><img src={item.image} alt="" loading="lazy" />
+    <div className={styles.eraNumber}>{String(i+1).padStart(2,'0')}</div><div><div className={styles.cardMeta}>{item.year}</div><h3>{item.title}</h3><p>{item.text}</p><div className={styles.tags}>{item.tags.map(t=><span key={t}>{t}</span>)}</div></div><SafeImage src={item.image} alt="" />
    </article>)}</div>
   </section>
 
   <section className={styles.mapTeaser}>
    <div><div className={styles.kicker}>02 · Historical geography</div><h2>See the borders change.</h2><p>History is easier to understand when political space moves with time. The dedicated map explorer lets you investigate historical maps and compare places across periods.</p><Link href="/history/maps">Open the historical map explorer ↗</Link></div>
-   <div className={styles.mapVisual}><img src={img.med} alt=""/><div className={styles.mapLines}><span>CARTHAGE</span><span>ROME</span><span>IFRIQIYA</span><span>OTTOMAN</span><span>MODERN STATES</span></div></div>
+   <SafeImagePanel src={img.med} className={styles.mapVisual}><div className={styles.mapLines}><span>CARTHAGE</span><span>ROME</span><span>IFRIQIYA</span><span>OTTOMAN</span><span>MODERN STATES</span></div></SafeImagePanel>
   </section>
 
   <section className={styles.explorer}>
@@ -196,9 +209,9 @@ export default function HistoryPage(){
   </section>
 
   <section className={styles.thenNow}>
-   <div className={styles.thenNowImage}><img src={img.carthage} alt=""/><div><span>THEN</span><strong>Carthage & the Mediterranean</strong></div></div>
+   <SafeImagePanel src={img.carthage} className={styles.thenNowImage}><div><span>THEN</span><strong>Carthage & the Mediterranean</strong></div></SafeImagePanel>
    <div className={styles.thenNowCenter}><div className={styles.kicker}>05 · Then ↔ now</div><h2>Old landscapes.<br/>New borders.</h2><p>Modern North Africa is the product of many older political geographies. The map you know today is only the latest layer.</p></div>
-   <div className={styles.thenNowImage}><img src={img.med} alt=""/><div><span>NOW</span><strong>Six modern states</strong></div></div>
+   <SafeImagePanel src={img.med} className={styles.thenNowImage}><div><span>NOW</span><strong>Six modern states</strong></div></SafeImagePanel>
   </section>
 
   <section className={styles.featureGrid}>
