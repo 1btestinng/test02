@@ -29,9 +29,9 @@ export default function AdvancedFinancialChart({points,interactionPoints=points,
   const [fxError,setFxError]=useState<string|undefined>();
   const [fxLoading,setFxLoading]=useState(false);
   const svgRef=useRef<SVGSVGElement|null>(null);
-
   const startDate=points[0]?.date?.slice(0,10);
   const endDate=points.at(-1)?.date?.slice(0,10);
+
   useEffect(()=>{
     let cancelled=false;
     if(!startDate||!endDate){setFxPoints([]);return;}
@@ -55,10 +55,10 @@ export default function AdvancedFinancialChart({points,interactionPoints=points,
   const displayInteraction=chartCurrency==='usd'&&canUseUsd?usdInteraction:displayBaseInteraction;
   const usdCoverageIncomplete=chartCurrency==='usd'&&canUseUsd&&usdPoints.length<points.length;
   const fxCoverageNote=chartCurrency==='usd'&&canUseUsd&&fxCoverageStart&&fxCoverageEnd?`FX coverage: ${formatDate(fxCoverageStart)} – ${formatDate(fxCoverageEnd)}.`:undefined;
-  if(displayPoints.length<2||displayInteraction.length<2)return <div className="emptyChart"><div><strong>Historical data unavailable</strong><p>The configured provider did not return enough valid observations for this metric.</p></div></div>;
   const positivePoints=useMemo(()=>displayPoints.filter(p=>p.value>0),[displayPoints]);
   const logAvailable=positivePoints.length>=2&&positivePoints.length===displayPoints.length;
   const effectiveScale=scale==='log'&&logAvailable?'log':'linear';
+  if(displayPoints.length<2||displayInteraction.length<2)return <div className="emptyChart"><div><strong>Historical data unavailable</strong><p>The configured provider did not return enough valid observations for this metric.</p></div></div>;
   const width=1000,height=330,padX=42,padY=30,plotWidth=width-padX*2,plotHeight=height-padY*2;
   const values=effectiveScale==='log'?positivePoints.map(p=>p.value):displayPoints.map(p=>p.value);
   const min=Math.min(...values),max=Math.max(...values),spread=max-min||Math.max(Math.abs(max)*.02,1);
