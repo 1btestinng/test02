@@ -1,13 +1,12 @@
 import type {Metadata} from 'next';
 import HomeClient from './home-client';
-import {getMarket,hasMarket,getMarketCompanies} from '@/lib/markets/registry';
+import {hasMarket,getMarketCompanies} from '@/lib/markets/registry';
 
 const allowedTop=[10,20,50,100,200,300,400,500,1000];
 const country=(value:string|undefined)=>value&&hasMarket(value.toUpperCase())?value.toUpperCase():'EG';
 
 export async function generateMetadata({searchParams}:{searchParams:Promise<{country?:string}>}):Promise<Metadata>{
-  country(searchParams ? undefined : undefined);
-  const {country:raw}=await searchParams;getMarket(country(raw));
+  await searchParams;
   return {title:'iStocks - North Africa',description:'The United States of North Africa'};
 }
 
