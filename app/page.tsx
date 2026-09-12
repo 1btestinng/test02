@@ -7,12 +7,12 @@ const country=(value:string|undefined)=>value&&hasMarket(value.toUpperCase())?va
 
 export async function generateMetadata({searchParams}:{searchParams:Promise<{country?:string}>}):Promise<Metadata>{
   const {country:raw}=await searchParams;const market=getMarket(country(raw));
-  return {title:`EGYstocks — ${market.config.countryName} Stock Market Rankings`,description:`Track ${market.config.countryName}'s listed companies by market capitalization on the ${market.config.exchangeName}.`};
+  return {title:`iStocks — ${market.config.countryName} Stock Market Rankings`,description:`Track ${market.config.countryName}'s listed companies by market capitalization on the ${market.config.exchangeName}.`};
 }
 
 export default async function Home({searchParams}:{searchParams:Promise<{country?:string;top?:string;sector?:string;search?:string;exchange?:string}>}){
   const params=await searchParams;const selected=country(params.country);const top=allowedTop.includes(Number(params.top))?Number(params.top):100;
-  let initialCompanies: Awaited<ReturnType<typeof getMarketCompanies>>=[];
+  let initialCompanies:Awaited<ReturnType<typeof getMarketCompanies>>=[];
   try{initialCompanies=await getMarketCompanies(selected);}catch{}
   return <HomeClient initialCountry={selected} initialTop={top} initialSector={params.sector??'All'} initialSearch={params.search??''} initialExchange={params.exchange??'All'} initialCompanies={initialCompanies}/>;
 }
