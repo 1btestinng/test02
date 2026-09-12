@@ -9,7 +9,7 @@ export const NORTH_AFRICA_COUNTRIES:NorthAfricaCountry[]=[
 export const NORTH_AFRICA_BY_SLUG=Object.fromEntries(NORTH_AFRICA_COUNTRIES.map(c=>[c.slug,c])) as Record<string,NorthAfricaCountry>;
 export const NORTH_AFRICA_SECTIONS=[
  {id:'history',label:'History',href:'/history',group:'explore'},
- {id:'markets',label:'Stock Market',href:'/',group:'explore'},
+ {id:'markets',label:'Stock Market',href:'/markets',group:'explore'},
  {id:'economy',label:'Economy',href:'/economy',group:'explore'},
  {id:'travel',label:'Travel',href:'/travel',group:'explore'},
  {id:'culture',label:'Culture',href:'/culture',group:'explore'},
