@@ -7,19 +7,21 @@ import styles from './page.module.css';
 type Era = {year:string; title:string; text:string; image:string; tags:string[]};
 type Item = {title:string; meta:string; text:string; image:string; tags:string[]};
 
+const historicalImage = (query:string,fallback:string) => `/api/images/pixabay?q=${encodeURIComponent(query)}&fallback=${encodeURIComponent(fallback)}`;
+
 const img = {
-  giza:'https://commons.wikimedia.org/wiki/Special:FilePath/All%20Gizah%20Pyramids.jpg',
-  carthage:'https://commons.wikimedia.org/wiki/Special:FilePath/Carthage%20ruins%20Tunisia.jpg',
-  alexandria:'https://commons.wikimedia.org/wiki/Special:FilePath/Alexandria%20Egypt%20Bibliotheca.jpg',
-  lepcis:'https://commons.wikimedia.org/wiki/Special:FilePath/Leptis%20Magna%20Roman%20theatre.jpg',
-  volubilis:'https://commons.wikimedia.org/wiki/Special:FilePath/Volubilis%20Morocco.jpg',
-  kairouan:'https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Mosque%20of%20Kairouan.jpg',
-  casbah:'https://commons.wikimedia.org/wiki/Special:FilePath/Casbah%20of%20Algiers.jpg',
-  tunis:'https://commons.wikimedia.org/wiki/Special:FilePath/Tunis%20medina.jpg',
-  cairo:'https://commons.wikimedia.org/wiki/Special:FilePath/Cairo%20Egypt%20citadel.jpg',
-  fez:'https://commons.wikimedia.org/wiki/Special:FilePath/Fez%20Morocco%20medina.jpg',
-  desert:'https://commons.wikimedia.org/wiki/Special:FilePath/Sahara%20desert%20Algeria.jpg',
-  med:'https://commons.wikimedia.org/wiki/Special:FilePath/Mediterranean%20Sea%20coast%20Tunisia.jpg',
+  giza:historicalImage('Giza pyramids Egypt','https://commons.wikimedia.org/wiki/Special:FilePath/All%20Gizah%20Pyramids.jpg'),
+  carthage:historicalImage('Carthage ruins Tunisia','https://commons.wikimedia.org/wiki/Special:FilePath/Carthage%20ruins%20Tunisia.jpg'),
+  alexandria:historicalImage('Alexandria Egypt library','https://commons.wikimedia.org/wiki/Special:FilePath/Alexandria%20Egypt%20Bibliotheca.jpg'),
+  lepcis:historicalImage('Leptis Magna Libya Roman ruins','https://commons.wikimedia.org/wiki/Special:FilePath/Leptis%20Magna%20Roman%20theatre.jpg'),
+  volubilis:historicalImage('Volubilis Morocco ruins','https://commons.wikimedia.org/wiki/Special:FilePath/Volubilis%20Morocco.jpg'),
+  kairouan:historicalImage('Great Mosque Kairouan Tunisia','https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Mosque%20of%20Kairouan.jpg'),
+  casbah:historicalImage('Casbah Algiers Algeria','https://commons.wikimedia.org/wiki/Special:FilePath/Casbah%20of%20Algiers.jpg'),
+  tunis:historicalImage('Tunis medina Tunisia','https://commons.wikimedia.org/wiki/Special:FilePath/Tunis%20medina.jpg'),
+  cairo:historicalImage('Cairo Egypt citadel','https://commons.wikimedia.org/wiki/Special:FilePath/Cairo%20Egypt%20citadel.jpg'),
+  fez:historicalImage('Fez Morocco medina','https://commons.wikimedia.org/wiki/Special:FilePath/Fez%20Morocco%20medina.jpg'),
+  desert:historicalImage('Sahara desert Algeria','https://commons.wikimedia.org/wiki/Special:FilePath/Sahara%20desert%20Algeria.jpg'),
+  med:historicalImage('Mediterranean coast Tunisia','https://commons.wikimedia.org/wiki/Special:FilePath/Mediterranean%20Sea%20coast%20Tunisia.jpg'),
 };
 
 const eras: Era[] = [

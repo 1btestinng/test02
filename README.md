@@ -1,4 +1,4 @@
-# Koshary and Couscous
+# North Africa Hub
 
 A minimal, data-first North Africa information platform with a mature stock-market and company-intelligence product at its core.
 
@@ -176,7 +176,7 @@ The architecture is designed so market-specific differences such as ticker conve
 
 ## Data integrity rules
 
-Koshary and Couscous follows a strict no-fabrication policy:
+North Africa Hub follows a strict no-fabrication policy:
 
 - Never fabricate prices.
 - Never fabricate market capitalization.
@@ -216,7 +216,7 @@ The application can continue without an Alpha Vantage key by using its existing 
 
 ### Core market routes
 
-- `/` — minimal Koshary and Couscous platform homepage
+- `/` — minimal North Africa Hub platform homepage
 - `/company/[ticker]` — legacy-compatible company detail route
 - `/company/[country]/[ticker]` — country-aware company detail route
 - `/markets` — stock-market experience
@@ -290,7 +290,7 @@ Do not consider a GitHub commit production-ready until the corresponding Vercel 
 
 ## Project philosophy
 
-**Koshary and Couscous** is intended to become a reliable, structured information layer for North Africa — beginning with public markets and expanding into broader economic, historical, geographic, cultural and company intelligence.
+**North Africa Hub** is intended to become a reliable, structured information layer for North Africa — beginning with public markets and expanding into broader economic, historical, geographic, cultural and company intelligence.
 
 The guiding principle is simple:
 

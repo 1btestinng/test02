@@ -147,7 +147,7 @@ export default function InteractiveHomeHero() {
   }, []);
 
   return (
-    <div ref={rootRef} className={styles.scene} aria-label="Koshary and Couscous homepage">
+    <div ref={rootRef} className={styles.scene} aria-label="North Africa Hub homepage">
       <div className={styles.atmosphere} aria-hidden="true" />
       <div className={styles.signals} aria-hidden="true">
         <span />
@@ -170,7 +170,7 @@ export default function InteractiveHomeHero() {
         ))}
       </div>
 
-      <section className={styles.message} aria-label="Koshary and Couscous statement">
+      <section className={styles.message} aria-label="North Africa Hub statement">
         <p ref={(element) => { textRefs.current[0] = element; }} className={styles.identity}>
           The United States of North Africa
         </p>

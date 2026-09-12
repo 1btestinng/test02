@@ -3,8 +3,8 @@ import HomeClient from '../home-client';
 import {hasMarket,getMarketCompanies} from '@/lib/markets/registry';
 
 export const metadata:Metadata={
-  title:'Koshary and Couscous | Stock Market',
-  description:'Koshary and Couscous stock-market rankings, company data and North African market intelligence.',
+  title:'North Africa Hub | Stock Market',
+  description:'North Africa Hub stock-market rankings, company data and North African market intelligence.',
 };
 
 const allowedTop=[10,20,50,100,200,300,400,500,1000];

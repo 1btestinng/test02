@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function HistoryLayout({children}: {children: ReactNode}) {
-  return children;
+  return <div className="history-page">{children}</div>;
 }

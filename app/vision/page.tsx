@@ -172,7 +172,7 @@ export default function VisionPage(){
   </section>
 
   <section className={styles.food}>
-   <h2>Koshary and Couscous.</h2>
+   <h2>North Africa Hub.</h2>
    <p>Two foods.</p>
    <p>Two words.</p>
    <p>A little strange together.</p>

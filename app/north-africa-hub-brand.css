@@ -1,0 +1,31 @@
+/* North Africa Hub: final cross-site consistency layer. */
+:root{
+  --text-primary:var(--ink);
+  --text-secondary:var(--muted);
+  --text-muted:var(--muted);
+  --surface:var(--panel);
+  --surface-secondary:var(--bg);
+  --border:var(--line);
+  --border-hover:color-mix(in srgb,var(--line) 65%,var(--ink) 35%);
+}
+.history-page{background:var(--bg);color:var(--ink);}
+.history-page [class*="hero_"]{background:var(--bg);color:var(--ink);}
+.history-page [class*="heroImage"]{opacity:.16;filter:grayscale(1) saturate(.2) contrast(.9);}
+.history-page [class*="heroOverlay"]{background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 94%,transparent),color-mix(in srgb,var(--bg) 78%,transparent) 58%,color-mix(in srgb,var(--bg) 88%,transparent));}
+.history-page [class*="heroContent"]{color:var(--ink);}
+.history-page [class*="heroContent"] .eyebrow{color:var(--muted);}
+.history-page [class*="heroContent"] h1,.history-page [class*="heroContent"] h1 em{font-family:inherit;color:var(--ink);}
+.history-page [class*="heroContent"] p{color:var(--muted);}
+.history-page [class*="heroActions"] a{border:1px solid var(--line);background:var(--panel);color:var(--ink);backdrop-filter:none;transition:background .18s ease,color .18s ease,border-color .18s ease;}
+.history-page [class*="heroActions"] a:first-child{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+.history-page [class*="heroActions"] a:hover{border-color:var(--border-hover);background:var(--bg);color:var(--ink);}
+.history-page [class*="heroActions"] a:first-child:hover{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+.history-page [class*="heroActions"] a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+.history-page [class*="page_"]{background:var(--bg);color:var(--ink);}
+.history-page [class*="card"],.history-page [class*="mapTeaser"]>div:first-child,.history-page [class*="thenNowCenter"],.history-page [class*="controls"] input,.history-page [class*="controls"] select,.history-page [class*="tabs"] button,.history-page [class*="sourceLinks"] a{background:var(--panel);color:var(--ink);border-color:var(--line);}
+.history-page [class*="card"] p,.history-page [class*="sectionHead"]>p,.history-page [class*="introGrid"] p,.history-page [class*="mapTeaser"] p,.history-page [class*="featureGrid"] p,.history-page [class*="sources"] p{color:var(--muted);}
+.history-page [class*="cardImage"]{background:var(--line);}
+.history-page a{color:var(--ink);}
+.history-page a:hover{color:var(--accent);}
+.history-page button:focus-visible,.history-page input:focus-visible,.history-page select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+@media(max-width:620px){.history-page [class*="heroContent"]{padding-left:20px;padding-right:20px;}}
