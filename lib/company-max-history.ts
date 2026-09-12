@@ -2,7 +2,8 @@ import type {HistoricalPricePoint,MarketCompany} from '@/lib/markets/types';
 
 type YahooChartResult={timestamp?:number[];indicators?:{quote?:Array<{close?:Array<number|null>}>};meta?:{symbol?:string}};
 type YahooChartResponse={chart?:{result?:YahooChartResult[];error?:{description?:string}|null}};
-type YahooSearchResponse={quotes?:Array<{symbol?:string;shortname?:string;longname?:string;quoteType?:string}>};
+type YahooSearchQuote={symbol?:string;shortname?:string;longname?:string;quoteType?:string;exchange?:string};
+type YahooSearchResponse={quotes?:YahooSearchQuote[]};
 
 const SUFFIX:Record<string,string>={EG:'.CA',MA:'.CS',TN:'.TN'};
 const SOURCE='Yahoo Finance';
@@ -25,22 +26,44 @@ async function chart(symbol:string){
   return result;
 }
 
+function expectedSuffix(company:MarketCompany){return SUFFIX[company.countryCode.toUpperCase()];}
+function tickerBase(symbol:string){return symbol.split('.')[0]?.toUpperCase()??symbol.toUpperCase();}
+function nameTokens(name:string){return name.toLowerCase().replace(/[^a-z0-9]+/g,' ').split(' ').filter(token=>token.length>=4).slice(0,5);}
+function nameScore(company:MarketCompany,candidate:YahooSearchQuote){
+  const hay=`${candidate.longname??''} ${candidate.shortname??''}`.toLowerCase();
+  return nameTokens(company.name).reduce((score,token)=>score+(hay.includes(token)?1:0),0);
+}
+
 async function resolve(company:MarketCompany){
   const clean=company.ticker.trim().toUpperCase();
-  const suffix=SUFFIX[company.countryCode.toUpperCase()];
-  const direct=suffix&&!clean.includes('.')?`${clean}${suffix}`:clean.includes('.')?clean:undefined;
-  if(direct){try{const result=await chart(direct);if(result.timestamp?.length)return direct;}catch{}}
+  const suffix=expectedSuffix(company);
+  const direct=clean.includes('.')?clean:suffix?`${clean}${suffix}`:undefined;
+  const candidates:string[]=[];
+  if(direct)candidates.push(direct);
+
   const url=new URL('https://query1.finance.yahoo.com/v1/finance/search');
   url.searchParams.set('q',`${company.ticker} ${company.name}`);
-  url.searchParams.set('quotesCount','10');
+  url.searchParams.set('quotesCount','20');
   url.searchParams.set('newsCount','0');
   try{
     const body=await json<YahooSearchResponse>(url.toString());
-    const candidates=(body.quotes??[]).filter(q=>q.quoteType==='EQUITY'&&q.symbol);
-    const sameTicker=candidates.find(q=>q.symbol!.split('.')[0].toUpperCase()===clean.split('.')[0]);
-    const sameName=candidates.find(q=>`${q.longname??''} ${q.shortname??''}`.toLowerCase().includes(company.name.toLowerCase().split(' ')[0]));
-    return sameTicker?.symbol??sameName?.symbol;
-  }catch{return undefined;}
+    const equities=(body.quotes??[]).filter(q=>q.quoteType==='EQUITY'&&q.symbol);
+    const exact=equities.filter(q=>q.symbol!.toUpperCase()===direct?.toUpperCase());
+    const suffixMatches=suffix?equities.filter(q=>q.symbol!.toUpperCase().endsWith(suffix)):[];
+    const tickerMatches=equities.filter(q=>tickerBase(q.symbol!)===clean);
+    const nameMatches=equities.filter(q=>nameScore(company,q)>0);
+    for(const q of [...exact,...suffixMatches,...tickerMatches,...nameMatches]){
+      if(q.symbol&&!candidates.includes(q.symbol))candidates.push(q.symbol);
+    }
+  }catch{}
+
+  for(const symbol of candidates){
+    try{
+      const result=await chart(symbol);
+      if((result.timestamp?.length??0)>1)return symbol;
+    }catch{}
+  }
+  return undefined;
 }
 
 function normalize(result:YahooChartResult):HistoricalPricePoint[]{
