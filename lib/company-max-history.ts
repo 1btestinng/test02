@@ -79,8 +79,10 @@ function normalize(result:YahooChartResult):HistoricalPricePoint[]{
 }
 
 function mergeHistory(daily:HistoricalPricePoint[],monthly:HistoricalPricePoint[]){
+  const dailyMonths=new Set(daily.map(point=>point.date.slice(0,7)));
+  const monthlyOnly=monthly.filter(point=>!dailyMonths.has(point.date.slice(0,7)));
   const byDate=new Map<string,HistoricalPricePoint>();
-  for(const point of monthly)byDate.set(point.date.slice(0,7),point);
+  for(const point of monthlyOnly)byDate.set(point.date.slice(0,10),point);
   for(const point of daily)byDate.set(point.date.slice(0,10),point);
   return [...byDate.values()].sort((a,b)=>a.date.localeCompare(b.date));
 }
