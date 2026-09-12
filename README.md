@@ -1,14 +1,14 @@
-# iStocks - North Africa
+# Koshary and Couscous
 
 A minimal, data-first North Africa information platform with a mature stock-market and company-intelligence product at its core.
 
-The platform currently covers **Egypt, Morocco, Tunisia and Algeria** for market/company data, with the broader North Africa platform architecture prepared for **Libya** and additional sections such as history, economy, travel, culture, geography, people, government, data, maps, methodology and sources.
+The platform currently covers **Egypt, Morocco, Tunisia and Algeria** for market/company data, with the broader North Africa platform architecture prepared for **Libya** and additional sections such as history, economy, travel, culture, geography, people, data, maps, methodology and sources.
 
 ## Product
 
 ### Stock Market
 
-The stock-market experience is the primary mature product and remains available from `/`.
+The stock-market experience is the primary mature product and is available from `/markets`.
 
 It provides:
 
@@ -86,7 +86,7 @@ Alpha Vantage data can include:
 - Profitability inputs
 - Shareholder data
 
-The application normalizes provider data into the internal iStocks financial model and calculates only transparent derived metrics when the required provider inputs exist. Missing fields remain unavailable.
+The application normalizes provider data into the internal financial model and calculates only transparent derived metrics when the required provider inputs exist. Missing fields remain unavailable.
 
 `ALPHA_VANTAGE_API_KEY` is server-side only and must be configured in Vercel Environment Variables if Alpha Vantage fundamentals are desired.
 
@@ -148,7 +148,7 @@ The shared navigation supports:
 - Breadcrumbs
 - Loading, empty, error and coming-soon states
 
-The stock-market homepage remains the primary mature data product while other sections can be expanded independently without duplicating country/page architecture.
+The homepage is now the platform's minimal identity layer, while the stock-market product is accessed through `/markets` and the other sections can be expanded independently without duplicating country/page architecture.
 
 ## Architecture
 
@@ -176,7 +176,7 @@ The architecture is designed so market-specific differences such as ticker conve
 
 ## Data integrity rules
 
-iStocks follows a strict no-fabrication policy:
+Koshary and Couscous follows a strict no-fabrication policy:
 
 - Never fabricate prices.
 - Never fabricate market capitalization.
@@ -216,11 +216,11 @@ The application can continue without an Alpha Vantage key by using its existing 
 
 ### Core market routes
 
-- `/` — primary market ranking and company discovery
+- `/` — minimal Koshary and Couscous platform homepage
 - `/company/[ticker]` — legacy-compatible company detail route
 - `/company/[country]/[ticker]` — country-aware company detail route
-- `/markets` — stock-market alias
-- `/markets/[country]` — country market alias
+- `/markets` — stock-market experience
+- `/markets/[country]` — country market route
 
 ### North Africa platform routes
 
@@ -290,7 +290,7 @@ Do not consider a GitHub commit production-ready until the corresponding Vercel 
 
 ## Project philosophy
 
-**iStocks - North Africa** is intended to become a reliable, structured information layer for North Africa — beginning with public markets and expanding into broader economic, historical, geographic, cultural and company intelligence.
+**Koshary and Couscous** is intended to become a reliable, structured information layer for North Africa — beginning with public markets and expanding into broader economic, historical, geographic, cultural and company intelligence.
 
 The guiding principle is simple:
 
