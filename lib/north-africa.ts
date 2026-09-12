@@ -10,7 +10,6 @@ export const NORTH_AFRICA_BY_SLUG=Object.fromEntries(NORTH_AFRICA_COUNTRIES.map(
 export const NORTH_AFRICA_SECTIONS=[
  {id:'history',label:'History',href:'/history',group:'explore'},
  {id:'markets',label:'Stock Market',href:'/markets',group:'explore'},
- {id:'economy',label:'Economy',href:'/economy',group:'explore'},
  {id:'travel',label:'Travel',href:'/travel',group:'explore'},
  {id:'culture',label:'Culture',href:'/culture',group:'explore'},
  {id:'people',label:'People',href:'/people',group:'explore'},
@@ -32,5 +31,5 @@ export const SECTION_CONTENT:Record<string,{eyebrow:string;title:string;descript
  data:{eyebrow:'North Africa',title:'North Africa Data',description:'A quantitative layer for cross-country comparison across markets, economies, people, trade, tourism and energy.',topics:['Markets','Economy','Population','Trade','Tourism','Energy','Currencies','Commodities','Demographics']},
  map:{eyebrow:'North Africa',title:'Interactive Map',description:'The future geographic layer for exploring countries, cities, regions, destinations and verified data points.',topics:['Countries','Cities','Regions','Tourist destinations','Historical sites','Economic data','Population data']},
  about:{eyebrow:'North Africa Hub',title:'About',description:'North Africa Hub is evolving from a stock-market product into a broader North African information and data platform.',topics:['North Africa','Markets','Data','Research','Information architecture']},
- sources:{eyebrow:'North Africa Hub',title:'Sources',description:'A dedicated home for source transparency as new information domains are connected.',topics:['Financial sources','Economic datasets','Government sources','Historical sources','Geographic datasets','Travel sources']},
+ sources:{eyebrow:'North Africa Hub',title:'Sources',description:'A dedicated home for source transparency as new information domains are connected.',topics:['Financial sources','Economic datasets','Government sources','Historical sources','Geographic datasets']},
 };
