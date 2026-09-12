@@ -54,9 +54,93 @@ export type HistoricalPricePoint = {
   volume?: number;
 };
 
+export type FinancialValue = {
+  value?: number;
+  currency?: string;
+  period?: string;
+  periodType?: 'annual' | 'quarterly' | 'ttm';
+  source: string;
+  retrievedAt: string;
+  methodology?: 'provider' | 'calculated';
+};
+
+export type FinancialPeriod = {
+  label: string;
+  periodType: 'annual' | 'quarterly' | 'ttm';
+  fiscalYear?: number;
+  quarter?: number;
+  startDate?: string;
+  endDate?: string;
+};
+
+export type CompanyFinancialData = {
+  valuation: {
+    pe?: FinancialValue;
+    ps?: FinancialValue;
+    pb?: FinancialValue;
+    evRevenue?: FinancialValue;
+    evEbitda?: FinancialValue;
+    enterpriseValue?: FinancialValue;
+  };
+  incomeStatement: {
+    revenue?: FinancialValue;
+    revenueGrowth?: FinancialValue;
+    grossProfit?: FinancialValue;
+    operatingIncome?: FinancialValue;
+    ebitda?: FinancialValue;
+    netIncome?: FinancialValue;
+    eps?: FinancialValue;
+    grossMargin?: FinancialValue;
+    operatingMargin?: FinancialValue;
+    netMargin?: FinancialValue;
+  };
+  profitability: {
+    roe?: FinancialValue;
+    roa?: FinancialValue;
+    roic?: FinancialValue;
+  };
+  balanceSheet: {
+    cash?: FinancialValue;
+    totalDebt?: FinancialValue;
+    netDebt?: FinancialValue;
+    totalAssets?: FinancialValue;
+    totalLiabilities?: FinancialValue;
+    equity?: FinancialValue;
+    bookValue?: FinancialValue;
+    bookValuePerShare?: FinancialValue;
+  };
+  cashFlow: {
+    operatingCashFlow?: FinancialValue;
+    capitalExpenditure?: FinancialValue;
+    freeCashFlow?: FinancialValue;
+    fcfMargin?: FinancialValue;
+  };
+  shareholder: {
+    sharesOutstanding?: FinancialValue;
+    dividendPerShare?: FinancialValue;
+    dividendYield?: FinancialValue;
+    payoutRatio?: FinancialValue;
+    buybacks?: FinancialValue;
+  };
+  periods: FinancialPeriod[];
+  capabilities: {
+    quote: boolean;
+    historicalPrices: boolean;
+    valuation: boolean;
+    incomeStatement: boolean;
+    balanceSheet: boolean;
+    cashFlow: boolean;
+    dividends: boolean;
+  };
+  source: string;
+  retrievedAt: string;
+  error?: string;
+};
+
 export type CompanyMarketData = {
   quote: Partial<MarketCompany>;
   history: HistoricalPricePoint[];
+  financials?: CompanyFinancialData;
   source: string;
   retrievedAt: string;
   delay: string;
