@@ -1,12 +1,13 @@
 import type {HistoricalPricePoint,MarketCompany} from '@/lib/markets/types';
 import {getNorthAfricaHistoricalPrices} from '@/lib/north-africa-history';
 
+type YahooInterval='1d'|'1mo';
 type YahooChartResult={timestamp?:number[];indicators?:{quote?:Array<{close?:Array<number|null>}>};meta?:{symbol?:string}};
 type YahooChartResponse={chart?:{result?:YahooChartResult[];error?:{description?:string}|null}};
 type YahooSearchQuote={symbol?:string;shortname?:string;longname?:string;quoteType?:string;exchange?:string};
 type YahooSearchResponse={quotes?:YahooSearchQuote[]};
 
-const SUFFIX:Record<string,string>={EG:'.CA',MA:'.CS',TN:'.TN'};
+const SUFFIX:Record<string,string>={EG:'.CA',MA:'.CS',TN:'.TN',DZ:'.AL'};
 const SOURCE='Yahoo Finance';
 
 async function json<T>(url:string):Promise<T>{
@@ -15,10 +16,10 @@ async function json<T>(url:string):Promise<T>{
   return (await response.json()) as T;
 }
 
-async function chart(symbol:string){
+async function chart(symbol:string,interval:YahooInterval='1d'){
   const url=new URL(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}`);
   url.searchParams.set('range','max');
-  url.searchParams.set('interval','1d');
+  url.searchParams.set('interval',interval);
   url.searchParams.set('events','div,splits');
   const body=await json<YahooChartResponse>(url.toString());
   if(body.chart?.error)throw new Error(body.chart.error.description??`${SOURCE} chart error`);
@@ -57,7 +58,10 @@ async function resolve(company:MarketCompany){
   }catch{}
 
   for(const symbol of candidates){
-    try{const result=await chart(symbol);if((result.timestamp?.length??0)>1)return symbol;}catch{}
+    try{
+      const result=await chart(symbol,'1d');
+      if((result.timestamp?.length??0)>1)return symbol;
+    }catch{}
   }
   return undefined;
 }
@@ -74,12 +78,25 @@ function normalize(result:YahooChartResult):HistoricalPricePoint[]{
   return points.sort((a,b)=>a.date.localeCompare(b.date));
 }
 
+function mergeHistory(daily:HistoricalPricePoint[],monthly:HistoricalPricePoint[]){
+  const byDate=new Map<string,HistoricalPricePoint>();
+  for(const point of monthly)byDate.set(point.date.slice(0,7),point);
+  for(const point of daily)byDate.set(point.date.slice(0,10),point);
+  return [...byDate.values()].sort((a,b)=>a.date.localeCompare(b.date));
+}
+
 export async function getCompanyMaxHistory(company:MarketCompany){
   const symbol=await resolve(company);
   if(symbol){
     try{
-      const points=normalize(await chart(symbol));
-      if(points.length>1)return {history:points,providerTicker:symbol,error:''};
+      const [dailyResult,monthlyResult]=await Promise.all([
+        chart(symbol,'1d'),
+        chart(symbol,'1mo').catch(()=>undefined)
+      ]);
+      const daily=normalize(dailyResult);
+      const monthly=monthlyResult?normalize(monthlyResult):[];
+      const history=mergeHistory(daily,monthly);
+      if(history.length>1)return {history,providerTicker:symbol,error:''};
     }catch{}
   }
 
