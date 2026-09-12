@@ -3,8 +3,8 @@ import type {Metadata} from 'next';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'iStocks — Global Listed Markets',
-  description: 'Track listed companies across Egypt, Morocco, Tunisia and Algeria by market capitalization.',
+  title: 'iStocks - North Africa',
+  description: 'The United States of North Africa',
 };
 
 export default function RootLayout({children}:{children:React.ReactNode}) {
