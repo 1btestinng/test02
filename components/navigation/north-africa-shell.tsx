@@ -3,6 +3,7 @@ import {useEffect,useMemo,useState} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {DEFAULT_NAVIGATION_ORDER,NAVIGATION_STORAGE_KEY,NORTH_AFRICA_SECTIONS} from '@/lib/north-africa';
+import ThemeToggle from '@/components/theme-toggle';
 import styles from './north-africa-shell.module.css';
 
 type NavigationId=typeof DEFAULT_NAVIGATION_ORDER[number];
@@ -24,9 +25,10 @@ export default function NorthAfricaShell({children}:{children:React.ReactNode}){
     <div className={styles.group}><div className={styles.label}>Explore</div>{items.filter(x=>x.group==='explore').map(item=><Link key={item.id} href={item.href} className={`${styles.item}${active(item.href)?` ${styles.active}`:''}`} title={collapsed?item.label:undefined}><Icon id={item.id}/><span>{item.label}</span></Link>)}</div>
     <div className={`${styles.group} ${styles.visionGroup}`}>{items.filter(x=>x.group==='vision').map(item=><Link key={item.id} href={item.href} className={`${styles.item}${active(item.href)?` ${styles.active}`:''}`} title={collapsed?item.label:undefined}><Icon id={item.id}/><span>{item.label}</span></Link>)}</div>
    </nav>
-   <div className={styles.bottom}><button className={styles.customize} onClick={()=>setCustomizing(true)}><Icon id="about"/><span>Customize</span></button></div>
+   <div className={styles.bottom}><ThemeToggle/><button className={styles.customize} onClick={()=>setCustomizing(true)}><Icon id="about"/><span>Customize</span></button></div>
   </aside>
   <div className={styles.content}>{children}</div>
+  <div className={styles.mobileWorldSwitch} aria-label="World switcher"><ThemeToggle/></div>
   {customizing&&<div className={styles.modalBackdrop} role="presentation"><section className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="naCustomizeTitle"><div className={styles.modalHead}><div><div className="eyebrow">Navigation</div><h2 id="naCustomizeTitle">Customize navigation</h2><p>Drag sections to reorder them, or use the move buttons. Your preference stays local to this device.</p></div><button className={styles.close} onClick={()=>setCustomizing(false)} aria-label="Close">×</button></div><div className={styles.list}>{items.map((item,i)=><div key={item.id} className={styles.row} draggable onDragStart={()=>setDragged(item.id)} onDragOver={event=>event.preventDefault()} onDrop={()=>drop(item.id)} onDragEnd={()=>setDragged(null)}><span className={styles.drag} aria-hidden="true">☰</span><span>{item.label}</span><div className={styles.moves}><button onClick={()=>move(item.id,-1)} disabled={i===0} aria-label={`Move ${item.label} up`}>↑</button><button onClick={()=>move(item.id,1)} disabled={i===items.length-1} aria-label={`Move ${item.label} down`}>↓</button></div></div>)}</div><div className={styles.foot}><button className={styles.secondary} onClick={()=>setOrder(DEFAULT_NAVIGATION_ORDER)}>Reset</button><button className={styles.primary} onClick={()=>setCustomizing(false)}>Done</button></div></section></div>}
  </div>;
 }
