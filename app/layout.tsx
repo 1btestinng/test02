@@ -5,7 +5,7 @@ import NorthAfricaShell from '@/components/navigation/north-africa-shell';
 
 export const metadata: Metadata = {
   title: 'iStocks - North Africa',
-  description: 'The United States of North Africa',
+  description: 'North African markets, companies, history, economy, travel, culture and data.',
 };
 
 export default function RootLayout({children}:{children:React.ReactNode}) {
