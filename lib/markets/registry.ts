@@ -6,9 +6,15 @@ import type {MarketCompany,MarketConfig,MarketDataProvider,MarketSummary} from '
 
 export const EGYPT_CONFIG:MarketConfig={countryCode:'EG',countryName:'Egypt',flag:'🇪🇬',exchangeCode:'EGX',exchangeName:'Egyptian Exchange',currencyCode:'EGP',currencySymbol:'EGP',timezone:'Africa/Cairo',benchmark:'EGX 30',dataSource:'StockAnalysis EGX actively traded securities snapshot; market caps sourced directly',delay:'Delayed snapshot',lastUpdated:'2026-09-11T17:01:00+03:00'};
 const egyptCompanies=():MarketCompany[]=>rankCompanies().map((c:any)=>({id:`EG-EGX-${c.ticker}`,countryCode:'EG',exchangeCode:'EGX',ticker:c.ticker,name:c.name,sector:c.industry,industry:c.industry,currency:'EGP',price:c.price,changePercent:c.changePercent,sharesOutstanding:c.sharesOutstanding,marketCapLocal:c.marketCapEGP,marketCapUSD:c.marketCapUSD,marketCapSource:'provider',timestamp:EGYPT_CONFIG.lastUpdated,dataSource:EGYPT_CONFIG.dataSource}));
-const moroccoCompaniesSnapshot=()=>moroccoCompanies.map(c=>({...c,marketCapUSD:c.marketCapLocal?c.marketCapLocal/MOROCCO_FX_USD_MAD:undefined}));
-const tunisiaCompaniesSnapshot=()=>tunisiaCompanies.map(c=>({...c,marketCapUSD:c.marketCapLocal?c.marketCapLocal/TUNISIA_FX_USD_TND:undefined}));
-const algeriaCompaniesSnapshot=()=>algeriaCompanies.map(c=>({...c,marketCapUSD:c.marketCapLocal?c.marketCapLocal/ALGERIA_FX_USD_DZD:undefined}));
+
+function normalizeSnapshotShares(company:MarketCompany):MarketCompany{
+  const shares=company.sharesOutstanding??(company.marketCapLocal!==undefined&&company.price!==undefined&&company.price>0?company.marketCapLocal/company.price:undefined);
+  return {...company,sharesOutstanding:shares,marketCapSource:company.marketCapSource??(shares!==undefined?'calculated':undefined)};
+}
+
+const moroccoCompaniesSnapshot=()=>moroccoCompanies.map(c=>normalizeSnapshotShares({...c,marketCapUSD:c.marketCapLocal?c.marketCapLocal/MOROCCO_FX_USD_MAD:undefined}));
+const tunisiaCompaniesSnapshot=()=>tunisiaCompanies.map(c=>normalizeSnapshotShares({...c,marketCapUSD:c.marketCapLocal?c.marketCapLocal/TUNISIA_FX_USD_TND:undefined}));
+const algeriaCompaniesSnapshot=()=>algeriaCompanies.map(c=>normalizeSnapshotShares({...c,marketCapUSD:c.marketCapLocal?c.marketCapLocal/ALGERIA_FX_USD_DZD:undefined}));
 
 const egyptProvider:MarketDataProvider={async getCompanies(){return egyptCompanies();},async getCompany(ticker){return egyptCompanies().find(c=>c.ticker.toUpperCase()===ticker.toUpperCase());},async getMarketSummary(){return summarize(egyptCompanies(),EGYPT_CONFIG,51.36,'Configured EGP/USD snapshot');},async getFX(){return 51.36;},async getMarketStatus(){return getMarketStatusSync('EG');}};
 const moroccoProvider:MarketDataProvider={async getCompanies(){return moroccoCompaniesSnapshot();},async getCompany(ticker){return moroccoCompaniesSnapshot().find(c=>c.ticker.toUpperCase()===ticker.toUpperCase());},async getMarketSummary(){return summarize(moroccoCompaniesSnapshot(),MOROCCO_CONFIG,MOROCCO_FX_USD_MAD,'USD/MAD market snapshot');},async getFX(){return MOROCCO_FX_USD_MAD;},async getMarketStatus(){return getMarketStatusSync('MA');}};
