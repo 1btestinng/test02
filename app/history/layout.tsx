@@ -2,7 +2,7 @@ import type {Metadata} from 'next';
 import type {ReactNode} from 'react';
 
 export const metadata: Metadata = {
-  title: 'North Africa Through Time | History',
+  title: 'North Africa Hub | History',
   description: 'An interactive historical atlas exploring North Africa from prehistory and antiquity to the modern era.',
 };
 
