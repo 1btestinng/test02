@@ -2,33 +2,44 @@
 
 import {useEffect,useState} from 'react';
 
-type World = 'matrix' | 'atlas';
-const STORAGE_KEY = 'north-africa-hub-mode';
+type World='matrix'|'atlas';
+const STORAGE_KEY='north-africa-hub-mode';
+const WORLD_EVENT='north-africa-hub-world-change';
+
+function readWorld():World{
+  try{
+    const stored=window.localStorage.getItem(STORAGE_KEY);
+    if(stored==='atlas'||stored==='matrix')return stored;
+    return window.localStorage.getItem('egystocks-theme')==='light'?'atlas':'matrix';
+  }catch{return 'matrix'}
+}
+
+function applyWorld(world:World){
+  document.documentElement.dataset.theme=world;
+  try{
+    window.localStorage.setItem(STORAGE_KEY,world);
+    window.localStorage.setItem('egystocks-theme',world==='matrix'?'dark':'light');
+  }catch{}
+  window.dispatchEvent(new CustomEvent(WORLD_EVENT,{detail:world}));
+}
 
 export default function ThemeToggle(){
   const [world,setWorld]=useState<World>('matrix');
 
   useEffect(()=>{
-    try{
-      const stored=window.localStorage.getItem(STORAGE_KEY);
-      const initial:World=stored==='atlas'||stored==='matrix' ? stored : window.localStorage.getItem('egystocks-theme')==='light' ? 'atlas' : 'matrix';
-      document.documentElement.dataset.theme=initial;
-      setWorld(initial);
-    }catch{
-      document.documentElement.dataset.theme='matrix';
-    }
+    const initial=readWorld();
+    document.documentElement.dataset.theme=initial;
+    setWorld(initial);
+    const onWorldChange=(event:Event)=>{
+      const next=(event as CustomEvent<World>).detail;
+      if(next==='atlas'||next==='matrix')setWorld(next);
+    };
+    const onStorage=(event:StorageEvent)=>{if(event.key===STORAGE_KEY)setWorld(readWorld());};
+    window.addEventListener(WORLD_EVENT,onWorldChange);
+    window.addEventListener('storage',onStorage);
+    return()=>{window.removeEventListener(WORLD_EVENT,onWorldChange);window.removeEventListener('storage',onStorage)};
   },[]);
 
-  function toggle(){
-    const next:World=world==='matrix'?'atlas':'matrix';
-    document.documentElement.dataset.theme=next;
-    try{
-      window.localStorage.setItem(STORAGE_KEY,next);
-      window.localStorage.setItem('egystocks-theme',next==='matrix'?'dark':'light');
-    }catch{}
-    setWorld(next);
-  }
-
-  const next=world==='matrix'?'Atlas':'Matrix';
-  return <button type="button" className="themeToggle" onClick={toggle} aria-label={`Switch to ${next}`} title={`Switch to ${next}`}><span aria-hidden>{world==='matrix'?'◈':'⌁'}</span></button>;
+  const next:World=world==='matrix'?'atlas':'matrix';
+  return <button type="button" className="themeToggle" onClick={()=>applyWorld(next)} aria-label={`Switch to ${next==='atlas'?'Atlas':'Matrix'}`} title={`Switch to ${next==='atlas'?'Atlas':'Matrix'}`}><span className="themeToggleGlyph" aria-hidden="true">{world==='matrix'?'◈':'⌁'}</span><span className="themeToggleText">{next==='atlas'?'Atlas':'Matrix'}</span></button>;
 }
