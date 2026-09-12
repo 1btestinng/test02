@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import {useMemo, useState} from 'react';
+import {useMemo, useState, type ReactNode} from 'react';
 import styles from './page.module.css';
 
 type Era = {year:string; title:string; text:string; image:string; tags:string[]};
@@ -120,7 +120,7 @@ function SafeImage({src,alt,className}:{src:string;alt:string;className?:string}
  return <img src={src} alt={alt} className={className} loading="lazy" decoding="async" onError={()=>setFailed(true)} />;
 }
 
-function SafeImagePanel({src,className,children}:{src:string;className:string;children?:React.ReactNode}){
+function SafeImagePanel({src,className,children}:{src:string;className:string;children?:ReactNode}){
  const [failed,setFailed]=useState(!src);
  if(failed||!src)return null;
  return <div className={className}><img src={src} alt="" loading="lazy" decoding="async" onError={()=>setFailed(true)} />{children}</div>;
