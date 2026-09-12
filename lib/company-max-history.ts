@@ -9,6 +9,8 @@ type YahooSearchResponse={quotes?:YahooSearchQuote[]};
 
 const SUFFIX:Record<string,string>={EG:'.CA',MA:'.CS',TN:'.TN',DZ:'.AL'};
 const SOURCE='Yahoo Finance';
+const FIVE_YEARS_SECONDS=5*365*24*60*60;
+const TWO_YEARS_SECONDS=2*365*24*60*60;
 
 async function json<T>(url:string):Promise<T>{
   const response=await fetch(url,{headers:{'User-Agent':'Mozilla/5.0 iStocks/1.0',Accept:'application/json'},next:{revalidate:900}});
@@ -16,9 +18,14 @@ async function json<T>(url:string):Promise<T>{
   return (await response.json()) as T;
 }
 
-async function chart(symbol:string,interval:YahooInterval='1d'){
+async function chart(symbol:string,interval:YahooInterval='1d',period1?:number,period2?:number){
   const url=new URL(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}`);
-  url.searchParams.set('range','max');
+  if(period1!==undefined&&period2!==undefined){
+    url.searchParams.set('period1',String(Math.max(0,Math.floor(period1))));
+    url.searchParams.set('period2',String(Math.floor(period2)));
+  }else{
+    url.searchParams.set('range','max');
+  }
   url.searchParams.set('interval',interval);
   url.searchParams.set('events','div,splits');
   const body=await json<YahooChartResponse>(url.toString());
@@ -59,7 +66,7 @@ async function resolve(company:MarketCompany){
 
   for(const symbol of candidates){
     try{
-      const result=await chart(symbol,'1d');
+      const result=await chart(symbol,'1d',Math.floor(Date.now()/1000)-86400*30,Math.floor(Date.now()/1000));
       if((result.timestamp?.length??0)>1)return symbol;
     }catch{}
   }
@@ -78,26 +85,54 @@ function normalize(result:YahooChartResult):HistoricalPricePoint[]{
   return points.sort((a,b)=>a.date.localeCompare(b.date));
 }
 
-function mergeHistory(daily:HistoricalPricePoint[],monthly:HistoricalPricePoint[]){
-  const dailyMonths=new Set(daily.map(point=>point.date.slice(0,7)));
-  const monthlyOnly=monthly.filter(point=>!dailyMonths.has(point.date.slice(0,7)));
+function mergePoints(...datasets:HistoricalPricePoint[][]){
   const byDate=new Map<string,HistoricalPricePoint>();
-  for(const point of monthlyOnly)byDate.set(point.date.slice(0,10),point);
-  for(const point of daily)byDate.set(point.date.slice(0,10),point);
+  for(const dataset of datasets)for(const point of dataset)byDate.set(point.date.slice(0,10),point);
   return [...byDate.values()].sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+async function fetchWindowedHistory(symbol:string,interval:YahooInterval,windowSeconds:number){
+  const now=Math.floor(Date.now()/1000);
+  const firstWindowStart=0;
+  const points:HistoricalPricePoint[]=[];
+  let end=now;
+  let emptyWindows=0;
+
+  // Explicit period1/period2 windows are important for international symbols:
+  // Yahoo's `range=max` can return a much shorter window even when older data
+  // exists. We walk backwards until Yahoo stops returning observations.
+  while(end>firstWindowStart){
+    const start=Math.max(firstWindowStart,end-windowSeconds);
+    try{
+      const result=await chart(symbol,interval,start,end);
+      const rows=normalize(result);
+      if(rows.length){
+        points.push(...rows);
+        emptyWindows=0;
+      }else{
+        emptyWindows++;
+        if(emptyWindows>=2)break;
+      }
+    }catch{
+      emptyWindows++;
+      if(emptyWindows>=2)break;
+    }
+    if(start<=firstWindowStart)break;
+    end=start+1;
+  }
+
+  return mergePoints(points);
 }
 
 export async function getCompanyMaxHistory(company:MarketCompany){
   const symbol=await resolve(company);
   if(symbol){
     try{
-      const [dailyResult,monthlyResult]=await Promise.all([
-        chart(symbol,'1d'),
-        chart(symbol,'1mo').catch(()=>undefined)
+      const [daily,monthly]=await Promise.all([
+        fetchWindowedHistory(symbol,'1d',TWO_YEARS_SECONDS),
+        fetchWindowedHistory(symbol,'1mo',FIVE_YEARS_SECONDS)
       ]);
-      const daily=normalize(dailyResult);
-      const monthly=monthlyResult?normalize(monthlyResult):[];
-      const history=mergeHistory(daily,monthly);
+      const history=mergePoints(monthly,daily);
       if(history.length>1)return {history,providerTicker:symbol,error:''};
     }catch{}
   }
