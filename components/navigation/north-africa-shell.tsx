@@ -5,18 +5,19 @@ import {usePathname} from 'next/navigation';
 import {DEFAULT_NAVIGATION_ORDER,NAVIGATION_STORAGE_KEY,NORTH_AFRICA_SECTIONS} from '@/lib/north-africa';
 import styles from './north-africa-shell.module.css';
 
-type Item={id:string;label:string;href:string;group:string};
+type NavigationId=typeof DEFAULT_NAVIGATION_ORDER[number];
+type Item={id:NavigationId;label:string;href:string;group:string};
 const iconPaths:Record<string,string>={history:'M4 6h16M4 12h16M4 18h10',markets:'M4 18V6m0 12h16M8 15l3-4 3 2 4-6',economy:'M5 20V10m7 10V5m7 15v-8',companies:'M4 20V8l8-4 8 4v12M8 20v-5h8v5',travel:'M3 11h18M5 7h14M7 15h10M9 19h6',culture:'M12 3a5 5 0 0 0 0 10 5 5 0 0 0 0-10zm0 10v8',geography:'M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11z',people:'M16 21v-2a4 4 0 0 0-8 0v2m4-8a4 4 0 1 0-8 0 4 4 0 0 0 8 0',data:'M4 19V5m0 14h16M8 16l3-4 3 2 4-6',map:'M4 6l6-3 4 3 6-3v15l-6 3-4-3-6 3V6z',about:'M12 20h9M12 4h9M4 8h5M4 16h5',methodology:'M6 3h12v18H6zM9 7h6M9 11h6M9 15h4',sources:'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',government:'M3 21h18M5 21V9h14v12M3 9l9-6 9 6'};
 function Icon({id}:{id:string}){return <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.icon} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[id]??iconPaths.about}/></svg>}
 export default function NorthAfricaShell({children}:{children:React.ReactNode}){
- const pathname=usePathname();const [collapsed,setCollapsed]=useState(false);const [mobileOpen,setMobileOpen]=useState(false);const [customizing,setCustomizing]=useState(false);const [order,setOrder]=useState<string[]>(DEFAULT_NAVIGATION_ORDER);const [hydrated,setHydrated]=useState(false);const [dragged,setDragged]=useState<string|null>(null);
- useEffect(()=>{try{const raw=window.localStorage.getItem(NAVIGATION_STORAGE_KEY);if(raw){const parsed=JSON.parse(raw);const ids=new Set(DEFAULT_NAVIGATION_ORDER);if(Array.isArray(parsed)&&parsed.length===DEFAULT_NAVIGATION_ORDER.length&&parsed.every(x=>typeof x==='string'&&ids.has(x))&&new Set(parsed).size===DEFAULT_NAVIGATION_ORDER.length)setOrder(parsed)}}catch{}finally{setHydrated(true)}},[]);
+ const pathname=usePathname();const [collapsed,setCollapsed]=useState(false);const [mobileOpen,setMobileOpen]=useState(false);const [customizing,setCustomizing]=useState(false);const [order,setOrder]=useState<NavigationId[]>(DEFAULT_NAVIGATION_ORDER);const [hydrated,setHydrated]=useState(false);const [dragged,setDragged]=useState<NavigationId|null>(null);
+ useEffect(()=>{try{const raw=window.localStorage.getItem(NAVIGATION_STORAGE_KEY);if(raw){const parsed:unknown=JSON.parse(raw);const ids=new Set<string>(DEFAULT_NAVIGATION_ORDER);if(Array.isArray(parsed)&&parsed.length===DEFAULT_NAVIGATION_ORDER.length&&parsed.every(x=>typeof x==='string'&&ids.has(x))&&new Set(parsed).size===DEFAULT_NAVIGATION_ORDER.length)setOrder(parsed as NavigationId[])}}catch{}finally{setHydrated(true)}},[]);
  useEffect(()=>{if(hydrated)try{window.localStorage.setItem(NAVIGATION_STORAGE_KEY,JSON.stringify(order))}catch{}},[order,hydrated]);
  useEffect(()=>{setMobileOpen(false)},[pathname]);
  const items=useMemo(()=>order.map(id=>NORTH_AFRICA_SECTIONS.find(x=>x.id===id)).filter(Boolean) as Item[],[order]);
- const move=(id:string,dir:-1|1)=>setOrder(current=>{const next=[...current];const i=next.indexOf(id);const j=i+dir;if(i<0||j<0||j>=next.length)return current;[next[i],next[j]]=[next[j],next[i]];return next});
- const drop=(target:string)=>{if(!dragged||dragged===target)return;setOrder(current=>{const next=[...current];const from=next.indexOf(dragged);const to=next.indexOf(target);if(from<0||to<0)return current;next.splice(from,1);next.splice(to,0,dragged);return next})};
- const active=(href:string,id:string)=>id==='markets'?pathname==='/':pathname===href||pathname.startsWith(`${href}/`);
+ const move=(id:NavigationId,dir:-1|1)=>setOrder(current=>{const next=[...current];const i=next.indexOf(id);const j=i+dir;if(i<0||j<0||j>=next.length)return current;[next[i],next[j]]=[next[j],next[i]];return next});
+ const drop=(target:NavigationId)=>{if(!dragged||dragged===target)return;setOrder(current=>{const next=[...current];const from=next.indexOf(dragged);const to=next.indexOf(target);if(from<0||to<0)return current;next.splice(from,1);next.splice(to,0,dragged);return next})};
+ const active=(href:string,id:NavigationId)=>id==='markets'?pathname==='/':pathname===href||pathname.startsWith(`${href}/`);
  return <div className={`${styles.frame}${collapsed?` ${styles.collapsed}`:''}`}>
   <aside className={`${styles.sidebar}${mobileOpen?` ${styles.open}`:''}`} aria-label="North Africa navigation">
    <div className={styles.top}><Link href="/" className={styles.brand} aria-label="iStocks North Africa home"><strong>iStocks - North Africa</strong></Link><button className={styles.collapse} onClick={()=>setCollapsed(v=>!v)} aria-label={collapsed?'Expand navigation':'Collapse navigation'} title={collapsed?'Expand navigation':'Collapse navigation'}>{collapsed?'→':'←'}</button></div>
