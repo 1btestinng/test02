@@ -1,4 +1,5 @@
 import type {HistoricalPricePoint,MarketCompany} from '@/lib/markets/types';
+import {getMoroccoHistoricalPrices} from '@/lib/morocco-history';
 import {getNorthAfricaHistoricalPrices} from '@/lib/north-africa-history';
 
 type YahooInterval='1d'|'1mo';
@@ -49,7 +50,6 @@ async function resolve(company:MarketCompany){
   const direct=clean.includes('.')?clean:suffix?`${clean}${suffix}`:undefined;
   const candidates:string[]=[];
   if(direct)candidates.push(direct);
-
   const url=new URL('https://query1.finance.yahoo.com/v1/finance/search');
   url.searchParams.set('q',`${company.ticker} ${company.name}`);
   url.searchParams.set('quotesCount','20');
@@ -63,7 +63,6 @@ async function resolve(company:MarketCompany){
     const nameMatches=equities.filter(q=>nameScore(company,q)>0);
     for(const q of [...exact,...suffixMatches,...tickerMatches,...nameMatches])if(q.symbol&&!candidates.includes(q.symbol))candidates.push(q.symbol);
   }catch{}
-
   for(const symbol of candidates){
     try{
       const result=await chart(symbol,'1d',Math.floor(Date.now()/1000)-86400*30,Math.floor(Date.now()/1000));
@@ -97,34 +96,28 @@ async function fetchWindowedHistory(symbol:string,interval:YahooInterval,windowS
   const points:HistoricalPricePoint[]=[];
   let end=now;
   let emptyWindows=0;
-
-  // Explicit period1/period2 windows are important for international symbols:
-  // Yahoo's `range=max` can return a much shorter window even when older data
-  // exists. We walk backwards until Yahoo stops returning observations.
   while(end>firstWindowStart){
     const start=Math.max(firstWindowStart,end-windowSeconds);
     try{
       const result=await chart(symbol,interval,start,end);
       const rows=normalize(result);
-      if(rows.length){
-        points.push(...rows);
-        emptyWindows=0;
-      }else{
-        emptyWindows++;
-        if(emptyWindows>=2)break;
-      }
-    }catch{
-      emptyWindows++;
-      if(emptyWindows>=2)break;
-    }
+      if(rows.length){points.push(...rows);emptyWindows=0;}else{emptyWindows++;if(emptyWindows>=2)break;}
+    }catch{emptyWindows++;if(emptyWindows>=2)break;}
     if(start<=firstWindowStart)break;
     end=start+1;
   }
-
   return mergePoints(points);
 }
 
 export async function getCompanyMaxHistory(company:MarketCompany){
+  // Morocco is handled by the exchange's own public historical endpoint.
+  // The public Casablanca Bourse interface exposes a maximum free depth of
+  // three years; using it here is more reliable than Yahoo/StockAnalysis for CSE.
+  if(company.countryCode.toUpperCase()==='MA'){
+    const morocco=await getMoroccoHistoricalPrices(company);
+    if(morocco.history.length>1)return morocco;
+  }
+
   const symbol=await resolve(company);
   if(symbol){
     try{
@@ -138,13 +131,6 @@ export async function getCompanyMaxHistory(company:MarketCompany){
   }
 
   const fallback=await getNorthAfricaHistoricalPrices(company);
-  if(fallback.history.length>1){
-    return {history:fallback.history,providerTicker:fallback.source,error:''};
-  }
-
-  return {
-    history:[] as HistoricalPricePoint[],
-    providerTicker:symbol,
-    error:fallback.error??`No verified historical market-data provider returned usable data for ${company.countryCode} ${company.ticker}.`
-  };
+  if(fallback.history.length>1)return {history:fallback.history,providerTicker:fallback.source,error:''};
+  return {history:[] as HistoricalPricePoint[],providerTicker:symbol,error:fallback.error??`No verified historical market-data provider returned usable data for ${company.countryCode} ${company.ticker}.`};
 }
