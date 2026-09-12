@@ -1,4 +1,5 @@
 import './globals.css';
+import './matrix-theme.css';
 import type {Metadata} from 'next';
 import Script from 'next/script';
 import NorthAfricaShell from '@/components/navigation/north-africa-shell';
