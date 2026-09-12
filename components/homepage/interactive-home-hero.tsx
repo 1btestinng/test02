@@ -62,8 +62,17 @@ export default function InteractiveHomeHero() {
             />
           ))}
           {NODES.map((node, index) => (
-            <circle key={index} r={index % 3 === 1 ? 1.35 : 1} className={`${styles.node} ${styles[`node${index + 1}`}`}>
-              <animateMotion dur={`${node.duration}s`} begin={`${node.delay}s`} repeatCount="indefinite" rotate="auto">
+            <circle
+              key={index}
+              r={index % 3 === 1 ? 1.35 : 1}
+              className={`${styles.node} ${styles[`node${index + 1}`]}`}
+            >
+              <animateMotion
+                dur={`${node.duration}s`}
+                begin={`${node.delay}s`}
+                repeatCount="indefinite"
+                rotate="auto"
+              >
                 <mpath href={`#${node.path}`} />
               </animateMotion>
             </circle>
