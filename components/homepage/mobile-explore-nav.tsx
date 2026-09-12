@@ -4,7 +4,6 @@ import styles from './mobile-explore-nav.module.css';
 const NAV_ITEMS = [
   {label:'History',href:'/history'},
   {label:'Markets',href:'/markets'},
-  {label:'Economy',href:'/economy'},
   {label:'Travel',href:'/travel'},
   {label:'Culture',href:'/culture'},
   {label:'People',href:'/people'},
