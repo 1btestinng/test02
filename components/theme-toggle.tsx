@@ -2,13 +2,11 @@
 
 import {useEffect,useState} from 'react';
 
-const THEME_KEY='north-africa-hub-theme';
-
 export default function ThemeToggle(){
   const [dark,setDark]=useState(true);
 
   useEffect(()=>{
-    const saved=window.localStorage.getItem(THEME_KEY);
+    const saved=window.localStorage.getItem('egystocks-theme');
     const initial=saved ? saved==='dark' : true;
     document.documentElement.dataset.theme=initial?'dark':'light';
     setDark(initial);
@@ -17,9 +15,9 @@ export default function ThemeToggle(){
   function toggle(){
     const next=!dark;
     document.documentElement.dataset.theme=next?'dark':'light';
-    window.localStorage.setItem(THEME_KEY,next?'dark':'light');
+    window.localStorage.setItem('egystocks-theme',next?'dark':'light');
     setDark(next);
   }
 
-  return <button type="button" className="themeToggle" onClick={toggle} aria-label={dark?'Switch to light theme':'Switch to dark theme'} title={dark?'Light theme':'Dark theme'}><span aria-hidden>{dark?'☼':'◐'}</span></button>;
+  return <button type="button" className="themeToggle" onClick={toggle} aria-label={dark?'Switch to light theme':'Switch to Matrix dark theme'} title={dark?'Light theme':'Matrix dark theme'}><span aria-hidden>{dark?'☼':'◐'}</span></button>;
 }

@@ -1,12 +1,251 @@
-/* North Africa Hub theme bridge.
-   Kept as a compatibility layer because the existing application imports this file.
-   Visual tokens live in globals.css; no legacy Matrix styling remains here. */
+/* iStocks Matrix-inspired visual system.
+   This file intentionally overrides the existing neutral palette without
+   changing component structure or product functionality.
+   Theme direction: #0F1710 — quiet, institutional, signal-driven green. */
 
 :root:not([data-theme='light']),
 html[data-theme='dark'] {
+  --bg: #0F1710;
+  --panel: #131D16;
+  --ink: #E5EAE6;
+  --muted: #89958C;
+  --line: #25352A;
+  --accent: #4B9A70;
+  --green: #4B9A70;
+  --red: #D47C7C;
+  --matrix-bright: #72C695;
+  --matrix-muted: #315A46;
+  --matrix-surface: #17221A;
+  --matrix-elevated: #1A271E;
   color-scheme: dark;
 }
 
-:root[data-theme='light'] {
-  color-scheme: light;
+:root:not([data-theme='light']) body,
+html[data-theme='dark'] body {
+  background:
+    radial-gradient(circle at 78% -12%, rgba(75, 154, 112, .075), transparent 34%),
+    radial-gradient(circle at 8% 100%, rgba(49, 90, 70, .045), transparent 28%),
+    var(--bg);
+}
+
+:root:not([data-theme='light']) .themeToggle,
+html[data-theme='dark'] .themeToggle {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+:root:not([data-theme='light']) .themeToggle:hover,
+html[data-theme='dark'] .themeToggle:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(75, 154, 112, .08), 0 8px 24px rgba(0, 0, 0, .18);
+}
+
+:root:not([data-theme='light']) .header,
+html[data-theme='dark'] .header {
+  border-bottom-color: rgba(75, 154, 112, .14);
+}
+
+:root:not([data-theme='light']) .brand:hover,
+html[data-theme='dark'] .brand:hover,
+:root:not([data-theme='light']) .nav a:hover,
+html[data-theme='dark'] .nav a:hover {
+  color: var(--matrix-bright);
+}
+
+:root:not([data-theme='light']) .select,
+:root:not([data-theme='light']) .search,
+html[data-theme='dark'] .select,
+html[data-theme='dark'] .search {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+:root:not([data-theme='light']) .select:focus,
+:root:not([data-theme='light']) .search:focus,
+:root:not([data-theme='light']) .themeToggle:focus-visible,
+html[data-theme='dark'] .select:focus,
+html[data-theme='dark'] .search:focus,
+html[data-theme='dark'] .themeToggle:focus-visible {
+  outline-color: var(--matrix-bright);
+}
+
+:root:not([data-theme='light']) .summary,
+:root:not([data-theme='light']) .metricGrid,
+:root:not([data-theme='light']) .companyLegacyFacts,
+html[data-theme='dark'] .summary,
+html[data-theme='dark'] .metricGrid,
+html[data-theme='dark'] .companyLegacyFacts {
+  background: rgba(75, 154, 112, .12);
+  border-color: rgba(75, 154, 112, .16);
+}
+
+:root:not([data-theme='light']) .stat,
+:root:not([data-theme='light']) .metricCell,
+:root:not([data-theme='light']) .companyLegacyFacts > div,
+html[data-theme='dark'] .stat,
+html[data-theme='dark'] .metricCell,
+html[data-theme='dark'] .companyLegacyFacts > div {
+  background: var(--panel);
+}
+
+:root:not([data-theme='light']) .table,
+:root:not([data-theme='light']) .intelChartPanel,
+:root:not([data-theme='light']) .financialTable,
+html[data-theme='dark'] .table,
+html[data-theme='dark'] .intelChartPanel,
+html[data-theme='dark'] .financialTable {
+  background: rgba(19, 29, 22, .94);
+  border-color: var(--line);
+}
+
+:root:not([data-theme='light']) .row:hover,
+html[data-theme='dark'] .row:hover {
+  background: color-mix(in srgb, var(--panel) 88%, var(--accent) 12%);
+}
+
+:root:not([data-theme='light']) .positive,
+html[data-theme='dark'] .positive {
+  color: var(--matrix-bright);
+}
+
+:root:not([data-theme='light']) .companyIdentityName:hover,
+html[data-theme='dark'] .companyIdentityName:hover {
+  color: var(--matrix-bright);
+}
+
+:root:not([data-theme='light']) .companyLogoFallback,
+html[data-theme='dark'] .companyLogoFallback {
+  background: rgba(49, 90, 70, .18);
+  border-color: var(--line);
+}
+
+/* Very subtle digital depth: visible as atmosphere, never as decoration. */
+:root:not([data-theme='light']) .main,
+html[data-theme='dark'] .main {
+  position: relative;
+}
+
+:root:not([data-theme='light']) .main::before,
+html[data-theme='dark'] .main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(420px, 42vw);
+  height: 220px;
+  pointer-events: none;
+  opacity: .028;
+  background-image: linear-gradient(90deg, transparent 49%, var(--matrix-bright) 50%, transparent 51%);
+  background-size: 34px 100%;
+  mask-image: linear-gradient(to bottom, #000, transparent);
+}
+
+:root:not([data-theme='light']) .intelChartPanel,
+html[data-theme='dark'] .intelChartPanel {
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .16), inset 0 1px 0 rgba(114, 198, 149, .025);
+}
+
+:root:not([data-theme='light']) .control.active,
+:root:not([data-theme='light']) .metricTab.active,
+:root:not([data-theme='light']) .period.active,
+html[data-theme='dark'] .control.active,
+html[data-theme='dark'] .metricTab.active,
+html[data-theme='dark'] .period.active {
+  background: rgba(75, 154, 112, .13);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgba(75, 154, 112, .08);
+}
+
+:root:not([data-theme='light']) .footer,
+html[data-theme='dark'] .footer {
+  border-top-color: rgba(75, 154, 112, .08);
+}
+
+/* Navigation shell */
+:root:not([data-theme='light']) .sidebar,
+html[data-theme='dark'] .sidebar {
+  background: rgba(15, 23, 16, .97);
+  border-right-color: rgba(75, 154, 112, .14);
+  box-shadow: 8px 0 40px rgba(0, 0, 0, .10);
+}
+
+:root:not([data-theme='light']) .item:hover,
+:root:not([data-theme='light']) .customize:hover,
+html[data-theme='dark'] .item:hover,
+html[data-theme='dark'] .customize:hover {
+  background: rgba(75, 154, 112, .075);
+  color: var(--ink);
+}
+
+:root:not([data-theme='light']) .active,
+html[data-theme='dark'] .active {
+  position: relative;
+  background: rgba(75, 154, 112, .105);
+  color: var(--ink);
+}
+
+:root:not([data-theme='light']) .active::before,
+html[data-theme='dark'] .active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 9px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--matrix-bright);
+  box-shadow: 0 0 12px rgba(114, 198, 149, .22);
+}
+
+:root:not([data-theme='light']) .mobileMenu,
+html[data-theme='dark'] .mobileMenu {
+  background: var(--panel);
+  border-color: var(--line);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .22);
+}
+
+:root:not([data-theme='light']) .overlay,
+html[data-theme='dark'] .overlay {
+  background: rgba(0, 0, 0, .56);
+}
+
+:root:not([data-theme='light']) .modalBackdrop,
+html[data-theme='dark'] .modalBackdrop {
+  background: rgba(0, 0, 0, .64);
+}
+
+:root:not([data-theme='light']) .modal,
+html[data-theme='dark'] .modal {
+  background: var(--panel);
+  border-color: var(--line);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(114, 198, 149, .025);
+}
+
+:root:not([data-theme='light']) .row,
+html[data-theme='dark'] .row {
+  border-bottom-color: rgba(75, 154, 112, .10);
+}
+
+:root:not([data-theme='light']) .thead,
+html[data-theme='dark'] .thead {
+  border-bottom-color: rgba(75, 154, 112, .13);
+}
+
+:root:not([data-theme='light']) .financialTable th,
+:root:not([data-theme='light']) .financialTable td,
+html[data-theme='dark'] .financialTable th,
+html[data-theme='dark'] .financialTable td {
+  border-bottom-color: rgba(75, 154, 112, .10);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-theme='light']) *,
+  html[data-theme='dark'] * {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
