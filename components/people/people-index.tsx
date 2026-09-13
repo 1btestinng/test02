@@ -2,8 +2,16 @@ import Link from 'next/link';
 import {PEOPLE, PEOPLE_CATEGORIES, PEOPLE_COUNTRIES} from '@/lib/people';
 import styles from './people-index.module.css';
 
-export default function PeopleIndex({title='People',description='The people who shaped North Africa.',countrySlug,categorySlug}:{title?:string;description?:string;countrySlug?:string;categorySlug?:string}) {
-  const count = countrySlug ? PEOPLE.filter(person => person.country.includes(countrySlug as never)).length : categorySlug ? PEOPLE.filter(person => person.categories.includes(categorySlug as never)).length : PEOPLE.length;
+export default function PeopleIndex({title='People',description='The people who shaped North Africa.',countrySlug,categorySlug,query}:{title?:string;description?:string;countrySlug?:string;categorySlug?:string;query?:string}) {
+  const normalizedQuery = query?.trim().toLowerCase() ?? '';
+  const scopedPeople = countrySlug
+    ? PEOPLE.filter(person => person.country.includes(countrySlug as never))
+    : categorySlug
+      ? PEOPLE.filter(person => person.categories.includes(categorySlug as never))
+      : PEOPLE;
+  const filteredPeople = normalizedQuery
+    ? scopedPeople.filter(person => person.name.toLowerCase().includes(normalizedQuery))
+    : scopedPeople;
 
   return (
     <div className={styles.page}>
@@ -14,22 +22,22 @@ export default function PeopleIndex({title='People',description='The people who 
           <p>{description}</p>
         </div>
         <div className={styles.heroMeta}>
-          <span>{count}</span>
-          <small>published profiles</small>
+          <span>{filteredPeople.length}</span>
+          <small>{normalizedQuery ? 'matching profiles' : 'published profiles'}</small>
         </div>
       </section>
 
       <section className={styles.section} aria-labelledby="people-search-title">
         <div className={styles.sectionHeading}>
           <h2 id="people-search-title">Search people</h2>
-          <span>Search infrastructure ready for the catalogue</span>
+          <span>Catalogue search</span>
         </div>
         <form className={styles.search} action="/people" method="get">
           <label className={styles.srOnly} htmlFor="people-query">Search people</label>
-          <input id="people-query" name="q" type="search" placeholder="Search a person..." autoComplete="off" />
+          <input id="people-query" name="q" type="search" placeholder="Search a person..." autoComplete="off" defaultValue={query ?? ''} />
           <button type="submit">SEARCH</button>
         </form>
-        <p className={styles.note}>The catalogue is being built from researched, source-checked profiles. No placeholder biographies are published.</p>
+        <p className={styles.note}>Search is connected to the published catalogue. Profiles are added only after factual research and source verification.</p>
       </section>
 
       <section className={styles.section} aria-labelledby="people-categories-title">
@@ -64,8 +72,8 @@ export default function PeopleIndex({title='People',description='The people who 
 
       <section className={styles.empty} aria-live="polite">
         <span>CATALOGUE</span>
-        <strong>No profiles published yet</strong>
-        <p>Phase 1 establishes the People architecture. Profiles will be added progressively after factual research and source verification.</p>
+        <strong>{normalizedQuery && filteredPeople.length === 0 ? `No published profiles match “${query}”` : 'No profiles published yet'}</strong>
+        <p>{normalizedQuery && filteredPeople.length === 0 ? 'Try another name. The catalogue is intentionally empty until researched profiles are ready.' : 'Phase 1 establishes the People architecture. Profiles will be added progressively after factual research and source verification.'}</p>
       </section>
     </div>
   );
