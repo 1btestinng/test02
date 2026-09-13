@@ -1,12 +1,12 @@
 import type {Metadata} from 'next';
 import {Suspense} from 'react';
 import BoycottExplorer from '@/components/boycott/boycott-explorer';
-import {getBoycottEntries} from '@/lib/boycott/data';
+import {DATASET_POLICY,getBoycottEntries} from '@/lib/boycott/data';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
   title: 'Boycott | North Africa Hub',
-  description: 'Search and explore companies and products appearing in documented boycott campaigns and research databases across North Africa.',
+  description: 'Search and explore companies appearing in documented boycott campaigns and research databases across North Africa.',
 };
 
 export default async function BoycottPage() {
@@ -21,23 +21,23 @@ export default async function BoycottPage() {
           <p className={styles.eyebrow}>North Africa · Research</p>
           <h1 id="boycott-title">Boycott</h1>
           <p className={styles.description}>
-            A searchable reference for companies and products appearing in documented boycott campaigns and research databases.
+            A searchable reference for companies appearing in documented boycott campaigns and research databases.
           </p>
         </div>
         <div className={styles.meta} aria-label="Boycott research database">
           <span>Research database</span>
           <strong>{entries.length.toLocaleString()} companies</strong>
-          <small>{categories} categories · {sources} sources</small>
+          <small>{categories} categories · {sources} source</small>
         </div>
       </section>
 
       <section className={styles.intro} aria-label="Dataset note">
         <div className={styles.introLead}>
           <span>How to use</span>
-          <p><strong>Search a company, product, or brand.</strong> Then narrow the reference by category, campaign, or source.</p>
+          <p><strong>Search a company, product, or brand.</strong> Then narrow the reference by category, visibility, campaign, or source.</p>
         </div>
         <p className={styles.introNote}>
-          Inclusion in this reference does not mean every entry is an official BDS consumer boycott target.
+          {DATASET_POLICY} Inclusion in this reference does not mean every entry is an official BDS consumer boycott target.
         </p>
       </section>
 
