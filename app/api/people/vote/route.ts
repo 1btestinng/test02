@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     }
 
     const personId = body.personId as string;
-    const vote = body.vote as PersonVoteType;
+    const requestedVote = body.vote as 'like' | 'dislike' | 'none';
 
     if (!getPerson(personId)) {
       return NextResponse.json({error: 'Person not found.'}, {status: 404});
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
         where: {personId_voterKey: {personId, voterKey}},
       });
 
-      if (vote === 'none') {
+      if (requestedVote === 'none') {
         if (existing) {
           await tx.personVote.delete({where: {id: existing.id}});
         }
@@ -83,13 +83,13 @@ export async function POST(request: Request) {
           data: {
             personId,
             voterKey,
-            vote,
+            vote: requestedVote as PersonVoteType,
           },
         });
-      } else if (existing.vote !== vote) {
+      } else if (existing.vote !== requestedVote) {
         await tx.personVote.update({
           where: {id: existing.id},
-          data: {vote},
+          data: {vote: requestedVote as PersonVoteType},
         });
       }
 
