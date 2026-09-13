@@ -2,7 +2,7 @@ import {cookies} from 'next/headers';
 import {randomUUID, createHash} from 'crypto';
 import {prisma} from '@/lib/prisma';
 import {PUBLIC_PEOPLE} from './data';
-import type {RankedPerson} from './types';
+import type {Person, RankedPerson} from './types';
 
 export const PEOPLE_PAGE_SIZE = 50;
 const VOTER_COOKIE = 'na_people_voter';
@@ -15,6 +15,23 @@ function normalize(value: string) {
     .replace(/[\u2010-\u2015]/g, '-')
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ');
+}
+
+// The first category in the normalized dataset is the person's primary field.
+// Keep the source dataset backward-compatible while exposing exactly one field in the index.
+export function getPrimaryField(person: Person) {
+  return person.categories[0] ?? 'Culture';
+}
+
+// "Football" is the public-facing field name; the legacy dataset stores it as Sports.
+function normalizeFieldFilter(value: string) {
+  const normalized = normalize(value);
+  return normalized === 'football' ? 'sports' : normalized;
+}
+
+export function formatPrimaryField(person: Person) {
+  const field = getPrimaryField(person);
+  return field === 'Sports' ? 'Football' : field;
 }
 
 function hashVoter(value: string) {
@@ -85,7 +102,7 @@ export async function rankPeople(params: {
 }) {
   const q = normalize(params.q ?? '');
   const country = normalize(params.country ?? '');
-  const category = normalize(params.category ?? '');
+  const category = normalizeFieldFilter(params.category ?? '');
   const period = normalize(params.period ?? '');
 
   const people = PUBLIC_PEOPLE.filter((person) => {
@@ -98,7 +115,7 @@ export async function rankPeople(params: {
     if (
       category &&
       category !== 'all' &&
-      !person.categories.some((value) => normalize(value) === category)
+      normalize(getPrimaryField(person)) !== category
     ) return false;
 
     if (
