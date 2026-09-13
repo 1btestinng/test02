@@ -119,7 +119,7 @@ export async function rankPeople(params: {
       ...(person.knownFor ?? []),
       person.shortDescription,
     ]
-      .filter(Boolean)
+      .filter((value): value is string => Boolean(value))
       .map(normalize)
       .join(' ');
 
