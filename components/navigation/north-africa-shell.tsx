@@ -1,6 +1,5 @@
 'use client';
 
-import {useEffect, useState} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {NORTH_AFRICA_SECTIONS} from '@/lib/north-africa';
@@ -11,27 +10,8 @@ const visionNavigation = NORTH_AFRICA_SECTIONS.find(section => section.id === 'v
 
 export default function NorthAfricaShell({children}:{children:React.ReactNode}) {
   const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const isActive = (href:string) => pathname === href || pathname.startsWith(`${href}/`);
-
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onKeyDown = (event:KeyboardEvent) => {
-      if (event.key === 'Escape') setMenuOpen(false);
-    };
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [menuOpen]);
 
   return (
     <div className={styles.frame}>
@@ -57,33 +37,19 @@ export default function NorthAfricaShell({children}:{children:React.ReactNode}) 
             ))}
           </nav>
 
-          <button
-            type="button"
-            className={styles.menuButton}
-            aria-expanded={menuOpen}
-            aria-controls="north-africa-mobile-navigation"
-            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            onClick={() => setMenuOpen(value => !value)}
-          >
-            <span>{menuOpen ? 'CLOSE' : 'MENU'}</span>
-          </button>
-        </div>
-
-        <div className={`${styles.mobilePanel}${menuOpen ? ` ${styles.mobilePanelOpen}` : ''}`}>
-          <nav id="north-africa-mobile-navigation" className={styles.mobileNav} aria-label="Mobile primary navigation">
-            {primaryNavigation.map(item => (
-              <Link
-                key={item.id}
-                href={item.href}
-                className={`${styles.mobileNavLink}${isActive(item.href) ? ` ${styles.active}` : ''}`}
-                aria-current={isActive(item.href) ? 'page' : undefined}
-                tabIndex={menuOpen ? 0 : -1}
-                onClick={() => setMenuOpen(false)}
-              >
-                <span>{item.label}</span>
-                <span className={styles.mobileArrow} aria-hidden="true">→</span>
-              </Link>
-            ))}
+          <nav className={styles.mobileNav} aria-label="Primary navigation">
+            <div className={styles.mobileNavScroller}>
+              {primaryNavigation.map(item => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className={`${styles.mobileNavLink}${isActive(item.href) ? ` ${styles.active}` : ''}`}
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           </nav>
         </div>
       </header>
