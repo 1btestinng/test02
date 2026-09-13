@@ -24,10 +24,10 @@ describe('reconcileMarketObservations', () => {
     expect(result.missingSecondary).toBe(1);
   });
 
-  it('fails closed when provider timestamps are too far apart', () => {
+  it('enforces the provider timestamp skew boundary', () => {
     const result = reconcileMarketObservations(
       [primary(2049, '2026-09-13T14:00:00Z')],
-      [secondary(2049, '2026-09-13T14:20:01Z')],
+      [secondary(2049, '2026-09-13T14:20:00Z')],
       { maxTimestampSkewMs: 20 * 60 * 1000 },
     );
     expect(result.ok).toBe(true);
@@ -35,7 +35,7 @@ describe('reconcileMarketObservations', () => {
 
     const strict = reconcileMarketObservations(
       [primary(2049, '2026-09-13T14:00:00Z')],
-      [secondary(2049, '2026-09-13T14:20:01Z')],
+      [secondary(2049, '2026-09-13T14:20:00Z')],
       { maxTimestampSkewMs: 20 * 60 * 1000 - 1 },
     );
     expect(strict.ok).toBe(false);
