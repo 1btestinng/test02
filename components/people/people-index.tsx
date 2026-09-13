@@ -19,19 +19,25 @@ type Props = {
 export default async function PeopleIndex({
   title = 'People',
   description = 'The people who shaped North Africa.',
-  countrySlug,
-  categorySlug,
+  countrySlug = 'all',
+  categorySlug = 'all',
   query = '',
   period = 'all',
   sort = 'rank',
   page = 1,
 }: Props) {
+  const selectedCountry = countrySlug.trim().toLowerCase() || 'all';
+  const selectedCategory = categorySlug.trim().toLowerCase() || 'all';
+  const selectedPeriod = period.trim().toLowerCase() || 'all';
+  const selectedSort = sort.trim().toLowerCase() || 'rank';
+  const searchQuery = query.trim();
+
   const rows = await rankPeople({
-    q: query,
-    country: countrySlug,
-    category: categorySlug,
-    period,
-    sort,
+    q: searchQuery,
+    country: selectedCountry,
+    category: selectedCategory,
+    period: selectedPeriod,
+    sort: selectedSort,
   });
   const total = rows.length;
   const safePage = Math.max(
@@ -46,11 +52,11 @@ export default async function PeopleIndex({
 
   const href = (n: number) => {
     const params = new URLSearchParams();
-    if (query.trim()) params.set('q', query.trim());
-    if (countrySlug && countrySlug !== 'all') params.set('country', countrySlug);
-    if (categorySlug && categorySlug !== 'all') params.set('category', categorySlug);
-    if (period !== 'all') params.set('period', period);
-    if (sort !== 'rank') params.set('sort', sort);
+    if (searchQuery) params.set('q', searchQuery);
+    if (selectedCountry !== 'all') params.set('country', selectedCountry);
+    if (selectedCategory !== 'all') params.set('category', selectedCategory);
+    if (selectedPeriod !== 'all') params.set('period', selectedPeriod);
+    if (selectedSort !== 'rank') params.set('sort', selectedSort);
     if (n > 1) params.set('page', String(n));
     const queryString = params.toString();
     return `/people${queryString ? `?${queryString}` : ''}`;
@@ -66,7 +72,7 @@ export default async function PeopleIndex({
         </div>
         <div className={styles.heroMeta}>
           <span>{total}</span>
-          <small>{query ? 'matching profiles' : 'published profiles'}</small>
+          <small>{searchQuery ? 'matching profiles' : 'published profiles'}</small>
         </div>
       </section>
 
@@ -80,11 +86,11 @@ export default async function PeopleIndex({
             name="q"
             type="search"
             placeholder="Search people..."
-            defaultValue={query}
+            defaultValue={searchQuery}
           />
           <select
             name="country"
-            defaultValue={countrySlug ?? 'all'}
+            defaultValue={selectedCountry}
             aria-label="Country"
           >
             <option value="all">All countries</option>
@@ -96,7 +102,7 @@ export default async function PeopleIndex({
           </select>
           <select
             name="category"
-            defaultValue={categorySlug ?? 'all'}
+            defaultValue={selectedCategory}
             aria-label="Field"
           >
             <option value="all">All fields</option>
@@ -106,13 +112,17 @@ export default async function PeopleIndex({
               </option>
             ))}
           </select>
-          <select name="period" defaultValue={period} aria-label="Period">
+          <select
+            name="period"
+            defaultValue={selectedPeriod}
+            aria-label="Period"
+          >
             <option value="all">All periods</option>
             {PERSON_PERIODS.map((p) => (
               <option key={p}>{p}</option>
             ))}
           </select>
-          <select name="sort" defaultValue={sort} aria-label="Sort">
+          <select name="sort" defaultValue={selectedSort} aria-label="Sort">
             <option value="rank">Community Rank</option>
             <option value="likes">Likes</option>
             <option value="dislikes">Dislikes</option>
