@@ -1,0 +1,48 @@
+name: Production Quality Guardian
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Generate Prisma Client and validate schema
+        run: npx prisma generate
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test market engine
+        run: npx vitest run lib/market.test.ts
+
+      - name: Test market-data pipeline
+        run: npx vitest run lib/market-data/pipeline.test.ts
+
+      - name: Test historical valuation
+        run: npx vitest run lib/market-data/historical-valuation.test.ts
+
+      - name: Test market-data guardian
+        run: npx vitest run lib/market-data/guardian.test.ts
+
+      - name: Production build
+        run: npm run build
