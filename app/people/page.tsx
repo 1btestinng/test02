@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   description: 'Explore the people who shaped North Africa across history, business, culture, cinema, science, sports, literature and politics.',
 };
 
-export default function PeoplePage() {
-  return <PeopleIndex />;
+type Props = {searchParams: Promise<{q?:string}>};
+
+export default async function PeoplePage({searchParams}:Props) {
+  const {q} = await searchParams;
+  return <PeopleIndex query={q} />;
 }
