@@ -102,15 +102,19 @@ export default async function PeopleIndex({
           </select>
           <select
             name="category"
-            defaultValue={selectedCategory}
+            defaultValue={selectedCategory === 'sports' ? 'football' : selectedCategory}
             aria-label="Field"
           >
             <option value="all">All fields</option>
-            {PERSON_CATEGORIES.map((c) => (
-              <option key={c} value={c.toLowerCase()}>
-                {c}
-              </option>
-            ))}
+            {PERSON_CATEGORIES.map((c) => {
+              const value = c === 'Sports' ? 'football' : c.toLowerCase();
+              const label = c === 'Sports' ? 'Football' : c;
+              return (
+                <option key={c} value={value}>
+                  {label}
+                </option>
+              );
+            })}
           </select>
           <select
             name="period"
