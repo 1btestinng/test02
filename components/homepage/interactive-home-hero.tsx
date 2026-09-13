@@ -1,6 +1,5 @@
 'use client';
 
-import ModeSwitcher from './mode-switcher';
 import styles from './interactive-home-hero.module.css';
 
 const ROUTES = [
@@ -95,8 +94,6 @@ export default function InteractiveHomeHero() {
         <h1>We love koshary and couscous.</h1>
         <p className={styles.love}>We love you all.</p>
       </section>
-
-      <ModeSwitcher />
     </div>
   );
 }
