@@ -15,7 +15,6 @@ export const NORTH_AFRICA_SECTIONS=[
  {id:'people',label:'People',href:'/people',group:'primary'},
  {id:'vision',label:'Vision',href:'/vision',group:'institutional'},
 ] as const;
-export const DEFAULT_NAVIGATION_ORDER=NORTH_AFRICA_SECTIONS.filter(section=>section.group==='primary').map(section=>section.id);
 export function getCountryBySlug(slug:string){return NORTH_AFRICA_BY_SLUG[slug.toLowerCase()]};
 export function getSection(id:string){return NORTH_AFRICA_SECTIONS.find(x=>x.id===id)};
 export const SECTION_CONTENT:Record<string,{eyebrow:string;title:string;description:string;topics:string[]}>= {
