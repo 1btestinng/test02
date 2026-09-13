@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useState} from 'react';
 import type {RankedPerson} from '@/lib/people/types';
+import {formatPrimaryField} from '@/lib/people/service';
 import styles from './people-table.module.css';
 
 export default function PeopleTable({initialRows}:{initialRows:RankedPerson[]}) {
@@ -35,7 +36,7 @@ export default function PeopleTable({initialRows}:{initialRows:RankedPerson[]}) 
           <td className={styles.rank}>#{row.rank}</td>
           <td><Link href={`/people/person/${row.slug}`} className={styles.person}><strong>{row.name}</strong>{row.nativeName&&<span>{row.nativeName}</span>}<small>{row.shortDescription}</small></Link></td>
           <td className={styles.country}>{row.countries.map(c=>c.charAt(0).toUpperCase()+c.slice(1)).join(' · ')}</td>
-          <td className={styles.field}>{row.categories.slice(0,2).join(' · ')}</td>
+          <td className={styles.field}>{formatPrimaryField(row)}</td>
           <td className={styles.number}>{row.likes.toLocaleString()}</td><td className={styles.number}>{row.dislikes.toLocaleString()}</td><td className={`${styles.number} ${styles.net}`}>{row.netLikes.toLocaleString()}</td>
           <td><div className={styles.actions} aria-label={`Vote for ${row.name}`}>
             <button type="button" className={row.userVote==='like'?styles.selected:''} disabled={pending===row.id} onClick={()=>vote(row.id,row.userVote==='like'?'none':'like')} aria-label={row.userVote==='like'?`Remove like for ${row.name}`:`Like ${row.name}`}>LIKE</button>
