@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {Suspense} from 'react';
 import BoycottExplorer from '@/components/boycott/boycott-explorer';
 import {getBoycottEntries} from '@/lib/boycott/data';
 import styles from './page.module.css';
@@ -31,6 +32,8 @@ export default async function BoycottPage(){
       <p>This reference combines documented boycott campaigns and research databases. Inclusion does not mean every entry is an official BDS consumer boycott target.</p>
     </section>
 
-    <BoycottExplorer entries={entries}/>
+    <Suspense fallback={<div aria-live="polite">Loading boycott database…</div>}>
+      <BoycottExplorer entries={entries}/>
+    </Suspense>
   </main>;
 }
