@@ -18,7 +18,7 @@ export async function persistEgyptMarketData(input: PersistEgyptMarketDataInput)
       }});
       totalMarketCapEGP += observation.price * Number(company.sharesOutstanding);
     }
-    await tx.fxRate.create({ data: { baseCurrency: input.fx.baseCurrency, quoteCurrency: input.fx.quoteCurrency, rate: input.fx.rate, timestamp: new Date(input.fx.timestamp), source: input.fx.source } });
+    await tx.fXRate.create({ data: { baseCurrency: input.fx.baseCurrency, quoteCurrency: input.fx.quoteCurrency, rate: input.fx.rate, timestamp: new Date(input.fx.timestamp), source: input.fx.source } });
     await tx.marketSnapshot.create({ data: { timestamp: input.timestamp, totalMarketCapEGP, totalMarketCapUSD: input.fx.rate > 0 ? totalMarketCapEGP / input.fx.rate : 0, marketStatus: input.marketStatus } });
   });
   return { persisted: true as const };
