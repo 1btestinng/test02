@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest';
-import {BOYCOTT_ENTRIES} from './data';
+import {CATEGORY_LABELS,BOYCOTT_ENTRIES} from './data';
 
-describe('boycott dataset seed',()=>{
+describe('boycott data',()=>{
   it('keeps the verified seed entries available for fallback',()=>{
     expect(BOYCOTT_ENTRIES).toHaveLength(2);
     expect(BOYCOTT_ENTRIES.map(entry=>entry.rank)).toEqual([1,2]);
@@ -14,6 +14,13 @@ describe('boycott dataset seed',()=>{
       expect(entry.product.trim()).not.toBe('');
       expect(entry.reason.trim()).not.toBe('');
       expect(entry.sourceUrl).toMatch(/^https:\/\//);
+      expect(entry.category).toBeTruthy();
     }
+  });
+
+  it('exposes stable category labels',()=>{
+    expect(CATEGORY_LABELS.food).toBe('Food & Restaurants');
+    expect(CATEGORY_LABELS.technology).toBe('Technology');
+    expect(CATEGORY_LABELS.other).toBe('Other');
   });
 });
