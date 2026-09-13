@@ -59,16 +59,19 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json({error: 'Invalid vote.'}, {status: 400});
     }
-    if (!getPerson(body.personId)) {
+
+    const personId = body.personId as string;
+    const vote = body.vote as PersonVoteType;
+
+    if (!getPerson(personId)) {
       return NextResponse.json({error: 'Person not found.'}, {status: 404});
     }
 
     const voterKey = await getVoterKey();
-    const vote = body.vote as PersonVoteType;
 
     const result = await prisma.$transaction(async (tx) => {
       const existing = await tx.personVote.findUnique({
-        where: {personId_voterKey: {personId: body.personId, voterKey}},
+        where: {personId_voterKey: {personId, voterKey}},
       });
 
       if (vote === 'none') {
@@ -78,7 +81,7 @@ export async function POST(request: Request) {
       } else if (!existing) {
         await tx.personVote.create({
           data: {
-            personId: body.personId,
+            personId,
             voterKey,
             vote,
           },
@@ -92,14 +95,14 @@ export async function POST(request: Request) {
 
       const counts = await tx.personVote.groupBy({
         by: ['vote'],
-        where: {personId: body.personId},
+        where: {personId},
         _count: {_all: true},
       });
       const likes = counts.find((row) => row.vote === 'like')?._count._all ?? 0;
       const dislikes =
         counts.find((row) => row.vote === 'dislike')?._count._all ?? 0;
       const persistedVote = await tx.personVote.findUnique({
-        where: {personId_voterKey: {personId: body.personId, voterKey}},
+        where: {personId_voterKey: {personId, voterKey}},
         select: {vote: true},
       });
 
@@ -111,7 +114,7 @@ export async function POST(request: Request) {
       };
     });
 
-    return NextResponse.json({personId: body.personId, ...result});
+    return NextResponse.json({personId, ...result});
   } catch {
     return NextResponse.json(
       {error: 'Voting is temporarily unavailable.'},
