@@ -11,10 +11,13 @@
 .navLink:hover{color:var(--ink)}
 .navLink:hover::after,.navLink.active::after{transform:scaleX(1)}
 .navLink.active{color:var(--ink)}
-.menuButton{display:none;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;font-size:10px;font-weight:700;letter-spacing:.13em;cursor:pointer}
-.menuButton:hover{border-color:var(--accent)}
-.menuButton:focus-visible,.navLink:focus-visible,.mobileNavLink:focus-visible,.visionLink:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
-.mobilePanel{display:none}
+.mobileNav{display:none}
+.mobileNavScroller{display:flex;align-items:stretch;gap:2px}
+.mobileNavLink{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;flex:0 0 auto;color:var(--muted);text-decoration:none;font-size:10px;line-height:1;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.mobileNavLink::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:center;transition:transform .16s ease}
+.mobileNavLink:hover,.mobileNavLink.active{color:var(--ink)}
+.mobileNavLink.active::after{transform:scaleX(1)}
+.mobileNavLink:focus-visible,.navLink:focus-visible,.visionLink:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .content{min-width:0;min-height:calc(100vh - 112px)}
 .footer{margin-top:clamp(56px,9vw,120px);border-top:1px solid var(--line);background:var(--bg)}
 .footerInner{width:min(1180px,calc(100% - 40px));margin:0 auto;padding:18px 0 24px;display:flex;justify-content:flex-end}
@@ -26,7 +29,7 @@
 .visionLink.active::after{content:"";position:absolute;left:0;right:20px;bottom:0;height:1px;background:var(--accent)}
 
 @media(max-width:850px){
-  .headerInner{width:min(100% - 32px,680px);padding:20px 0 16px}
+  .headerInner{width:min(100% - 32px,680px);padding:20px 0 0}
   .desktopNav{gap:22px;margin-top:17px}
   .navLink{font-size:10px}
   .content{min-height:calc(100vh - 105px)}
@@ -34,34 +37,31 @@
 }
 
 @media(max-width:620px){
-  .headerInner{width:calc(100% - 32px);padding:18px 0 14px;display:grid;grid-template-columns:1fr auto;grid-template-areas:"identity menu";align-items:center;column-gap:18px}
-  .identity{grid-area:identity;text-align:left;min-width:0}
+  .headerInner{width:100%;padding:16px 0 0;display:block}
+  .identity{padding:0 16px;text-align:left}
   .brand{align-items:flex-start;max-width:100%}
   .brandName{font-size:17px;letter-spacing:.095em}
   .tagline{margin-top:6px;font-size:9px;letter-spacing:.035em;white-space:nowrap}
   .desktopNav{display:none}
-  .menuButton{grid-area:menu;display:inline-flex;align-self:center}
-  .mobilePanel{display:block;max-height:0;overflow:hidden;border-top:0 solid var(--line);transition:max-height .2s ease,border-color .2s ease}
-  .mobilePanelOpen{max-height:420px;border-top:1px solid var(--line)}
-  .mobileNav{width:calc(100% - 32px);margin:0 auto;padding:7px 0 12px}
-  .mobileNavLink{position:relative;display:flex;align-items:center;justify-content:space-between;min-height:54px;padding:0 4px;border-bottom:1px solid var(--line);color:var(--muted);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.12em}
-  .mobileNavLink:last-child{border-bottom:0}
-  .mobileNavLink:hover,.mobileNavLink.active{color:var(--ink)}
-  .mobileNavLink.active::before{content:"";width:2px;height:18px;background:var(--accent);position:absolute;left:-7px;top:18px}
-  .mobileArrow{font-size:17px;line-height:1;color:var(--muted)}
-  .content{min-height:calc(100vh - 82px)}
+  .mobileNav{display:block;width:100%;margin-top:12px;overflow:hidden;border-top:1px solid var(--line)}
+  .mobileNavScroller{width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:0 8px;overscroll-behavior-x:contain;touch-action:pan-x}
+  .mobileNavScroller::-webkit-scrollbar{display:none}
+  .mobileNavLink{min-height:46px;padding:0 13px;font-size:9px;letter-spacing:.09em}
+  .mobileNavLink::after{left:13px;right:13px}
+  .content{min-height:calc(100vh - 126px)}
   .footer{margin-top:64px}
   .footerInner{width:calc(100% - 32px);padding:16px 0 22px}
 }
 
 @media(max-width:380px){
-  .headerInner{width:calc(100% - 24px);column-gap:12px}
+  .identity{padding:0 12px}
   .brandName{font-size:15px;letter-spacing:.08em}
   .tagline{font-size:8px}
-  .menuButton{padding:0 12px}
-  .mobileNav{width:calc(100% - 24px)}
+  .mobileNavLink{padding:0 11px;font-size:8px}
+  .mobileNavLink::after{left:11px;right:11px}
+  .mobileNavScroller{padding:0 5px}
 }
 
 @media(prefers-reduced-motion:reduce){
-  .navLink,.navLink::after,.mobilePanel,.visionArrow{transition:none}
+  .navLink,.navLink::after,.mobileNavLink,.mobileNavLink::after,.visionArrow{transition:none}
 }
