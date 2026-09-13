@@ -17,30 +17,31 @@ export default async function BoycottPage() {
   return (
     <main className={styles.page}>
       <section className={styles.hero} aria-labelledby="boycott-title">
-        <div>
+        <div className={styles.heroCopy}>
           <p className={styles.eyebrow}>North Africa · Research</p>
           <h1 id="boycott-title">Boycott</h1>
           <p className={styles.description}>
-            Search and explore companies and products appearing in documented boycott campaigns and research databases.
+            A searchable reference for companies and products appearing in documented boycott campaigns and research databases.
           </p>
         </div>
         <div className={styles.meta} aria-label="Boycott research database">
-          <span>Boycott research database</span>
+          <span>Research database</span>
           <strong>{entries.length.toLocaleString()} companies</strong>
           <small>{categories} categories · {sources} sources</small>
         </div>
       </section>
 
       <section className={styles.intro} aria-label="Dataset note">
-        <p>
-          <strong>Search first.</strong> Type a company or product name to check the database, then narrow the results by category, campaign, or source.
-        </p>
-        <p>
-          This reference combines documented boycott campaigns and research databases. Inclusion does not mean every entry is an official BDS consumer boycott target.
+        <div className={styles.introLead}>
+          <span>How to use</span>
+          <p><strong>Search a company, product, or brand.</strong> Then narrow the reference by category, campaign, or source.</p>
+        </div>
+        <p className={styles.introNote}>
+          Inclusion in this reference does not mean every entry is an official BDS consumer boycott target.
         </p>
       </section>
 
-      <Suspense fallback={<div aria-live="polite">Loading boycott database…</div>}>
+      <Suspense fallback={<div className={styles.loading} aria-live="polite">Loading research database…</div>}>
         <BoycottExplorer entries={entries} />
       </Suspense>
     </main>
