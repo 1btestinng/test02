@@ -29,11 +29,7 @@ export default async function PeopleIndex({
   const rows = await rankPeople({
     q: query,
     country: countrySlug,
-    category: categorySlug
-      ? PERSON_CATEGORIES.find(
-          (x) => x.toLowerCase() === categorySlug.toLowerCase(),
-        )
-      : undefined,
+    category: categorySlug,
     period,
     sort,
   });
@@ -47,13 +43,17 @@ export default async function PeopleIndex({
     safePage * PEOPLE_PAGE_SIZE,
   );
   const pages = Math.max(1, Math.ceil(total / PEOPLE_PAGE_SIZE));
+
   const href = (n: number) => {
-    const p = new URLSearchParams();
-    if (query) p.set('q', query);
-    if (period !== 'all') p.set('period', period);
-    if (sort !== 'rank') p.set('sort', sort);
-    if (n > 1) p.set('page', String(n));
-    return `/people${p.toString() ? `?${p}` : ''}`;
+    const params = new URLSearchParams();
+    if (query.trim()) params.set('q', query.trim());
+    if (countrySlug && countrySlug !== 'all') params.set('country', countrySlug);
+    if (categorySlug && categorySlug !== 'all') params.set('category', categorySlug);
+    if (period !== 'all') params.set('period', period);
+    if (sort !== 'rank') params.set('sort', sort);
+    if (n > 1) params.set('page', String(n));
+    const queryString = params.toString();
+    return `/people${queryString ? `?${queryString}` : ''}`;
   };
 
   return (
@@ -141,10 +141,7 @@ export default async function PeopleIndex({
           <div className={styles.empty}>No published profiles match these filters.</div>
         )}
         {pages > 1 && (
-          <nav
-            className={styles.pagination}
-            aria-label="People pages"
-          >
+          <nav className={styles.pagination} aria-label="People pages">
             {safePage > 1 && (
               <Link href={href(safePage - 1)}>← Previous</Link>
             )}
