@@ -2,6 +2,7 @@ import {NextResponse} from 'next/server';
 import {headers} from 'next/headers';
 import {prisma} from '@/lib/prisma';
 import {getPerson, getVoterKey} from '@/lib/people/service';
+import type {PersonVoteType} from '@prisma/client';
 
 export const runtime = 'nodejs';
 
@@ -63,41 +64,42 @@ export async function POST(request: Request) {
     }
 
     const voterKey = await getVoterKey();
+    const vote = body.vote as PersonVoteType;
 
     const result = await prisma.$transaction(async (tx) => {
       const existing = await tx.personVote.findUnique({
-        where: {personId_voterKey: {personId: body.personId as string, voterKey}},
+        where: {personId_voterKey: {personId: body.personId, voterKey}},
       });
 
-      if (body.vote === 'none') {
+      if (vote === 'none') {
         if (existing) {
           await tx.personVote.delete({where: {id: existing.id}});
         }
       } else if (!existing) {
         await tx.personVote.create({
           data: {
-            personId: body.personId as string,
+            personId: body.personId,
             voterKey,
-            vote: body.vote,
+            vote,
           },
         });
-      } else if (existing.vote !== body.vote) {
+      } else if (existing.vote !== vote) {
         await tx.personVote.update({
           where: {id: existing.id},
-          data: {vote: body.vote},
+          data: {vote},
         });
       }
 
       const counts = await tx.personVote.groupBy({
         by: ['vote'],
-        where: {personId: body.personId as string},
+        where: {personId: body.personId},
         _count: {_all: true},
       });
       const likes = counts.find((row) => row.vote === 'like')?._count._all ?? 0;
       const dislikes =
         counts.find((row) => row.vote === 'dislike')?._count._all ?? 0;
       const persistedVote = await tx.personVote.findUnique({
-        where: {personId_voterKey: {personId: body.personId as string, voterKey}},
+        where: {personId_voterKey: {personId: body.personId, voterKey}},
         select: {vote: true},
       });
 
