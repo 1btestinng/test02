@@ -4,8 +4,12 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useState} from 'react';
 import type {RankedPerson} from '@/lib/people/types';
-import {formatPrimaryField} from '@/lib/people/service';
 import styles from './people-table.module.css';
+
+function formatPrimaryField(row: RankedPerson) {
+  const field = row.categories[0] ?? 'Culture';
+  return field === 'Sports' ? 'Football' : field;
+}
 
 export default function PeopleTable({initialRows}:{initialRows:RankedPerson[]}) {
   const router=useRouter();
