@@ -7,88 +7,22 @@ import {CATEGORY_LABELS} from '@/lib/boycott/data';
 import styles from './boycott-explorer.module.css';
 
 function normalize(value:string){return value.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
-function initials(name:string){
-  const words=name.trim().split(/\s+/).filter(Boolean);
-  if(!words.length)return '—';
-  if(words.length===1)return Array.from(words[0]).slice(0,2).join('').toUpperCase();
-  return `${Array.from(words[0])[0]??''}${Array.from(words[1])[0]??''}`.toUpperCase();
-}
-function Logo({entry}:{entry:BoycottEntry}){
-  const [src,setSrc]=useState(entry.logo??'');
-  const [failed,setFailed]=useState(false);
-  useEffect(()=>{
-    if(src||failed)return;
-    let cancelled=false;
-    fetch(`/api/logos?name=${encodeURIComponent(entry.company)}`,{cache:'force-cache'}).then(async response=>{
-      if(!response.ok)throw new Error('logo');
-      const data=await response.json() as {website?:string|null};
-      if(!data.website)throw new Error('logo');
-      if(!cancelled)setSrc(`https://cdn.tickerlogos.com/${data.website.replace(/^https?:\/\//,'').replace(/\/$/,'')}`);
-    }).catch(()=>{if(!cancelled)setFailed(true);});
-    return ()=>{cancelled=true;};
-  },[entry.company,failed,src]);
-  return <span className={styles.logo}>{!failed&&src?<img src={src} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={()=>{setSrc('');setFailed(true)}}/>:<span aria-hidden="true">{initials(entry.company)}</span>}</span>;
-}
+function initials(name:string){const words=name.trim().split(/\s+/).filter(Boolean);if(!words.length)return '—';if(words.length===1)return Array.from(words[0]).slice(0,2).join('').toUpperCase();return `${Array.from(words[0])[0]??''}${Array.from(words[1])[0]??''}`.toUpperCase();}
+function Logo({entry}:{entry:BoycottEntry}){const [src,setSrc]=useState(entry.logo??'');const [failed,setFailed]=useState(false);useEffect(()=>{if(src||failed)return;let cancelled=false;fetch(`/api/logos?name=${encodeURIComponent(entry.company)}`,{cache:'force-cache'}).then(async response=>{if(!response.ok)throw new Error('logo');const data=await response.json() as {website?:string|null};if(!data.website)throw new Error('logo');if(!cancelled)setSrc(`https://cdn.tickerlogos.com/${data.website.replace(/^https?:\/\//,'').replace(/\/$/,'')}`);}).catch(()=>{if(!cancelled)setFailed(true);});return()=>{cancelled=true;};},[entry.company,failed,src]);return <span className={styles.logo}>{!failed&&src?<img src={src} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={()=>{setSrc('');setFailed(true)}}/>:<span aria-hidden="true">{initials(entry.company)}</span>}</span>;}
 function categoryLabel(category?:BoycottCategory){return category?CATEGORY_LABELS[category]:'Other';}
 
 export default function BoycottExplorer({entries}:{entries:BoycottEntry[]}){
-  const router=useRouter();
-  const pathname=usePathname();
-  const searchParams=useSearchParams();
-  const [search,setSearch]=useState(searchParams.get('search')??'');
-  const [category,setCategory]=useState<BoycottCategory|'all'>((searchParams.get('category') as BoycottCategory|'all')??'all');
-  const [campaign,setCampaign]=useState(searchParams.get('campaign')??'all');
-  const [source,setSource]=useState(searchParams.get('source')??'all');
-  const [sort,setSort]=useState(searchParams.get('sort')??'relevance');
-  const [showFilters,setShowFilters]=useState(false);
-  const [selected,setSelected]=useState<BoycottEntry|null>(null);
-
-  const categories=useMemo(()=>Array.from(new Set(entries.map(e=>e.category??'other'))).sort((a,b)=>CATEGORY_LABELS[a as BoycottCategory].localeCompare(CATEGORY_LABELS[b as BoycottCategory])),[entries]);
-  const campaigns=useMemo(()=>Array.from(new Set(entries.map(e=>e.campaignType).filter(Boolean) as string[])).sort(),[entries]);
-  const sources=useMemo(()=>Array.from(new Set(entries.map(e=>e.source).filter(Boolean) as string[])).sort(),[entries]);
-  const normalizedSearch=normalize(search);
-  const filtered=useMemo(()=>{
-    const result=entries.filter(entry=>{
-      const haystack=normalize([entry.company,entry.product,entry.reason,entry.category?CATEGORY_LABELS[entry.category]:'',...(entry.aliases??[])].join(' '));
-      return (!normalizedSearch||haystack.includes(normalizedSearch))&&(category==='all'||entry.category===category)&&(campaign==='all'||entry.campaignType===campaign)&&(source==='all'||entry.source===source);
-    });
-    return [...result].sort((a,b)=>sort==='company'?a.company.localeCompare(b.company):sort==='category'?categoryLabel(a.category).localeCompare(categoryLabel(b.category)):a.rank-b.rank);
-  },[entries,normalizedSearch,category,campaign,source,sort]);
-
-  useEffect(()=>{
-    const params=new URLSearchParams();
-    if(search.trim())params.set('search',search.trim());
-    if(category!=='all')params.set('category',category);
-    if(campaign!=='all')params.set('campaign',campaign);
-    if(source!=='all')params.set('source',source);
-    if(sort!=='relevance')params.set('sort',sort);
-    const next=params.toString();
-    const current=searchParams.toString();
-    if(next!==current)router.replace(`${pathname}${next?`?${next}`:''}`,{scroll:false});
-  },[search,category,campaign,source,sort,pathname,router,searchParams]);
-
-  useEffect(()=>{
-    if(!selected)return;
-    const onKeyDown=(event:KeyboardEvent)=>{if(event.key==='Escape')setSelected(null);};
-    document.addEventListener('keydown',onKeyDown);
-    return()=>document.removeEventListener('keydown',onKeyDown);
-  },[selected]);
-
-  function clear(){setSearch('');setCategory('all');setCampaign('all');setSource('all');setSort('relevance');}
-  const active=Boolean(search||category!=='all'||campaign!=='all'||source!=='all');
-
-  return <div className={styles.explorer}>
-    <div className={styles.searchPanel}>
-      <div className={styles.searchBox}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search companies, products, brands…" aria-label="Search companies, products, or brands" />{search&&<button className={styles.clearSearch} onClick={()=>setSearch('')} aria-label="Clear search">×</button>}</div>
-      <div className={styles.filterRow}>
-        <div className={styles.categoryNav} role="tablist" aria-label="Quick categories"><button className={category==='all'?styles.activeTab:''} onClick={()=>setCategory('all')} role="tab" aria-selected={category==='all'}>All</button>{categories.slice(0,7).map(value=><button key={value} className={category===value?styles.activeTab:''} onClick={()=>setCategory(value as BoycottCategory)} role="tab" aria-selected={category===value}>{CATEGORY_LABELS[value as BoycottCategory]}</button>)}</div>
-        <button className={styles.filtersButton} onClick={()=>setShowFilters(value=>!value)} aria-expanded={showFilters}>Filters{active&&<span>{filtered.length}</span>}</button>
-      </div>
-      {showFilters&&<div className={styles.filterPanel}><label>Category<select value={category} onChange={e=>setCategory(e.target.value as BoycottCategory|'all')}><option value="all">All categories</option>{categories.map(value=><option key={value} value={value}>{CATEGORY_LABELS[value as BoycottCategory]}</option>)}</select></label><label>Campaign<select value={campaign} onChange={e=>setCampaign(e.target.value)}><option value="all">All campaigns</option>{campaigns.map(value=><option key={value} value={value}>{value}</option>)}</select></label><label>Source<select value={source} onChange={e=>setSource(e.target.value)}><option value="all">All sources</option>{sources.map(value=><option key={value} value={value}>{value}</option>)}</select></label>{active&&<button className={styles.clearFilters} onClick={clear}>Clear all</button>}</div>}
-      {active&&<div className={styles.activeFilters}><span>{filtered.length.toLocaleString()} results</span>{category!=='all'&&<button onClick={()=>setCategory('all')}>{CATEGORY_LABELS[category]} ×</button>}{campaign!=='all'&&<button onClick={()=>setCampaign('all')}>{campaign} ×</button>}{source!=='all'&&<button onClick={()=>setSource('all')}>{source} ×</button>}{search&&<button onClick={()=>setSearch('')}>“{search}” ×</button>}<button onClick={clear}>Clear filters</button></div>}
-    </div>
-    <div className={styles.resultHeader}><div><span className={styles.resultEyebrow}>Research index</span><h2>Companies & products</h2></div><div className={styles.resultControls}><strong>{filtered.length.toLocaleString()} <span>of {entries.length.toLocaleString()}</span></strong><label className={styles.sortControl}><span>Sort</span><select value={sort} onChange={e=>setSort(e.target.value)} aria-label="Sort results"><option value="relevance">Relevance</option><option value="company">Company</option><option value="category">Category</option></select></label></div></div>
-    {filtered.length===0?<div className={styles.empty}><strong>No companies found</strong><p>Try another company, product, or filter combination.</p><button onClick={clear}>Clear filters</button></div>:<div className={styles.tableWrap}><table className={styles.table}><caption className="sr-only">Boycott research database</caption><colgroup><col className={styles.colRank}/><col className={styles.colCompany}/><col className={styles.colProduct}/><col className={styles.colReason}/><col className={styles.colSource}/></colgroup><thead><tr><th scope="col">#</th><th scope="col">Company</th><th scope="col">Product / Brand</th><th scope="col">Why boycotted</th><th scope="col">Source</th></tr></thead><tbody>{filtered.map((entry,index)=><tr key={entry.id} onClick={()=>setSelected(entry)} tabIndex={0} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();setSelected(entry)}}}><td className={styles.rank} data-label="#">{index+1}</td><td data-label="Company"><div className={styles.companyCell}><Logo entry={entry}/><strong className={styles.companyName}>{entry.company}</strong></div></td><td data-label="Product / Brand"><div className={styles.productCell}>{entry.product||'—'}</div></td><td className={styles.reasonCell} data-label="Why boycotted"><div>{entry.reason||'Reason not provided by the cited source.'}</div></td><td data-label="Source"><div className={styles.sourceCell}>{entry.source||'Documented entry'}</div></td></tr>)}</tbody></table></div>}
-    {selected&&<div className={styles.overlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setSelected(null)}}><aside className={styles.drawer} role="dialog" aria-modal="true" aria-labelledby="company-detail-title"><button className={styles.close} onClick={()=>setSelected(null)} aria-label="Close company details">×</button><div className={styles.drawerCompany}><Logo entry={selected}/><div><span>Company record</span><h3 id="company-detail-title">{selected.company}</h3></div></div><dl><div><dt>Product / Brand</dt><dd>{selected.product||'Not specified'}</dd></div><div><dt>Category</dt><dd>{categoryLabel(selected.category)}</dd></div><div><dt>Why boycotted</dt><dd>{selected.reason||'Reason not provided by the cited source.'}</dd></div><div><dt>Campaign</dt><dd>{selected.campaignType||'Not specified'}</dd></div><div><dt>Source</dt><dd>{selected.source||'Not specified'}</dd></div><div><dt>Confidence</dt><dd>{selected.confidence||'Not specified'}</dd></div></dl>{selected.sourceUrl&&<a className={styles.sourceLink} href={selected.sourceUrl} target="_blank" rel="noreferrer">Open source ↗</a>}</aside></div>}
-  </div>;
+ const router=useRouter();const pathname=usePathname();const searchParams=useSearchParams();
+ const [search,setSearch]=useState(searchParams.get('search')??'');const [category,setCategory]=useState<BoycottCategory|'all'>((searchParams.get('category') as BoycottCategory|'all')??'all');const [campaign,setCampaign]=useState(searchParams.get('campaign')??'all');const [source,setSource]=useState(searchParams.get('source')??'all');const [sort,setSort]=useState(searchParams.get('sort')??'relevance');const [showFilters,setShowFilters]=useState(false);const [selected,setSelected]=useState<BoycottEntry|null>(null);
+ const categories=useMemo(()=>Array.from(new Set(entries.map(e=>e.category??'other'))).sort((a,b)=>CATEGORY_LABELS[a as BoycottCategory].localeCompare(CATEGORY_LABELS[b as BoycottCategory])),[entries]);const campaigns=useMemo(()=>Array.from(new Set(entries.map(e=>e.campaignType).filter(Boolean) as string[])).sort(),[entries]);const sources=useMemo(()=>Array.from(new Set(entries.map(e=>e.source).filter(Boolean) as string[])).sort(),[entries]);const normalizedSearch=normalize(search);
+ const filtered=useMemo(()=>{const result=entries.filter(entry=>{const haystack=normalize([entry.company,entry.product,entry.reason,entry.category?CATEGORY_LABELS[entry.category]:'',...(entry.aliases??[])].join(' '));return(!normalizedSearch||haystack.includes(normalizedSearch))&&(category==='all'||entry.category===category)&&(campaign==='all'||entry.campaignType===campaign)&&(source==='all'||entry.source===source);});return[...result].sort((a,b)=>sort==='company'?a.company.localeCompare(b.company):sort==='category'?categoryLabel(a.category).localeCompare(categoryLabel(b.category)):a.rank-b.rank);},[entries,normalizedSearch,category,campaign,source,sort]);
+ useEffect(()=>{const params=new URLSearchParams();if(search.trim())params.set('search',search.trim());if(category!=='all')params.set('category',category);if(campaign!=='all')params.set('campaign',campaign);if(source!=='all')params.set('source',source);if(sort!=='relevance')params.set('sort',sort);const next=params.toString();const current=searchParams.toString();if(next!==current)router.replace(`${pathname}${next?`?${next}`:''}`,{scroll:false});},[search,category,campaign,source,sort,pathname,router,searchParams]);
+ useEffect(()=>{if(!selected)return;const onKeyDown=(event:KeyboardEvent)=>{if(event.key==='Escape')setSelected(null);};document.addEventListener('keydown',onKeyDown);return()=>document.removeEventListener('keydown',onKeyDown);},[selected]);
+ function clear(){setSearch('');setCategory('all');setCampaign('all');setSource('all');setSort('relevance');}const active=Boolean(search||category!=='all'||campaign!=='all'||source!=='all');
+ return <div className={styles.explorer}>
+  <div className={styles.searchPanel}><div className={styles.searchBox}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search companies, products, brands…" aria-label="Search companies, products, or brands" />{search&&<button className={styles.clearSearch} onClick={()=>setSearch('')} aria-label="Clear search">×</button>}</div><div className={styles.filterRow}><div className={styles.categoryNav} role="tablist" aria-label="Quick categories"><button className={category==='all'?styles.activeTab:''} onClick={()=>setCategory('all')} role="tab" aria-selected={category==='all'}>All</button>{categories.slice(0,7).map(value=><button key={value} className={category===value?styles.activeTab:''} onClick={()=>setCategory(value as BoycottCategory)} role="tab" aria-selected={category===value}>{CATEGORY_LABELS[value as BoycottCategory]}</button>)}</div><button className={styles.filtersButton} onClick={()=>setShowFilters(value=>!value)} aria-expanded={showFilters}>Filters{active&&<span>{filtered.length}</span>}</button></div>{showFilters&&<div className={styles.filterPanel}><label>Category<select value={category} onChange={e=>setCategory(e.target.value as BoycottCategory|'all')}><option value="all">All categories</option>{categories.map(value=><option key={value} value={value}>{CATEGORY_LABELS[value as BoycottCategory]}</option>)}</select></label><label>Campaign<select value={campaign} onChange={e=>setCampaign(e.target.value)}><option value="all">All campaigns</option>{campaigns.map(value=><option key={value} value={value}>{value}</option>)}</select></label><label>Source<select value={source} onChange={e=>setSource(e.target.value)}><option value="all">All sources</option>{sources.map(value=><option key={value} value={value}>{value}</option>)}</select></label>{active&&<button className={styles.clearFilters} onClick={clear}>Clear all</button>}</div>}{active&&<div className={styles.activeFilters}><span>{filtered.length.toLocaleString()} results</span>{category!=='all'&&<button onClick={()=>setCategory('all')}>{CATEGORY_LABELS[category]} ×</button>}{campaign!=='all'&&<button onClick={()=>setCampaign('all')}>{campaign} ×</button>}{source!=='all'&&<button onClick={()=>setSource('all')}>{source} ×</button>}{search&&<button onClick={()=>setSearch('')}>“{search}” ×</button>}<button onClick={clear}>Clear filters</button></div>}</div>
+  <div className={styles.resultHeader}><div><span className={styles.resultEyebrow}>Research index</span><h2>Companies & products</h2></div><div className={styles.resultControls}><strong>{filtered.length.toLocaleString()} <span>of {entries.length.toLocaleString()}</span></strong><label className={styles.sortControl}><span>Sort</span><select value={sort} onChange={e=>setSort(e.target.value)} aria-label="Sort results"><option value="relevance">Relevance</option><option value="company">Company</option><option value="category">Category</option></select></label></div></div>
+  {filtered.length===0?<div className={styles.empty}><strong>No companies found</strong><p>Try another company, product, or filter combination.</p><button onClick={clear}>Clear filters</button></div>:<div className={styles.tableWrap}><table style={{width:'100%',minWidth:'980px',tableLayout:'fixed',borderCollapse:'collapse'}}><caption className="sr-only">Boycott research database</caption><colgroup><col style={{width:'6%'}}/><col style={{width:'24%'}}/><col style={{width:'20%'}}/><col style={{width:'34%'}}/><col style={{width:'16%'}}/></colgroup><thead><tr><th scope="col">#</th><th scope="col">Company</th><th scope="col">Product / Brand</th><th scope="col">Why boycotted</th><th scope="col">Source</th></tr></thead><tbody>{filtered.map((entry,index)=><tr key={entry.id} onClick={()=>setSelected(entry)} tabIndex={0} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();setSelected(entry)}}}><td className={styles.rank} data-label="#" style={{verticalAlign:'middle'}}>{index+1}</td><td data-label="Company" style={{verticalAlign:'middle',overflow:'hidden'}}><div style={{display:'flex',alignItems:'center',gap:'11px',minWidth:0,width:'100%'}}><Logo entry={entry}/><strong style={{display:'block',minWidth:0,width:'100%',fontWeight:600,lineHeight:1.3,whiteSpace:'normal',wordBreak:'normal',overflowWrap:'normal'}}>{entry.company}</strong></div></td><td data-label="Product / Brand" style={{verticalAlign:'middle',overflow:'hidden'}}><div style={{minWidth:0,width:'100%',overflowWrap:'break-word',wordBreak:'normal'}}>{entry.product||'—'}</div></td><td data-label="Why boycotted" style={{verticalAlign:'middle',overflow:'hidden'}}><div style={{color:'var(--muted)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',minWidth:0,width:'100%'}} title={entry.reason}>{entry.reason||'Reason not provided by the cited source.'}</div></td><td data-label="Source" style={{verticalAlign:'middle',overflow:'hidden'}}><div style={{color:'var(--muted)',fontSize:'10px',lineHeight:1.4,minWidth:0,width:'100%',overflowWrap:'break-word',wordBreak:'normal'}}>{entry.source||'Documented entry'}</div></td></tr>)}</tbody></table></div>}
+  {selected&&<div className={styles.overlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setSelected(null)}}><aside className={styles.drawer} role="dialog" aria-modal="true" aria-labelledby="company-detail-title"><button className={styles.close} onClick={()=>setSelected(null)} aria-label="Close company details">×</button><div className={styles.drawerCompany}><Logo entry={selected}/><div><span>Company record</span><h3 id="company-detail-title">{selected.company}</h3></div></div><dl><div><dt>Product / Brand</dt><dd>{selected.product||'Not specified'}</dd></div><div><dt>Category</dt><dd>{categoryLabel(selected.category)}</dd></div><div><dt>Why boycotted</dt><dd>{selected.reason||'Reason not provided by the cited source.'}</dd></div><div><dt>Campaign</dt><dd>{selected.campaignType||'Not specified'}</dd></div><div><dt>Source</dt><dd>{selected.source||'Not specified'}</dd></div><div><dt>Confidence</dt><dd>{selected.confidence||'Not specified'}</dd></div></dl>{selected.sourceUrl&&<a className={styles.sourceLink} href={selected.sourceUrl} target="_blank" rel="noreferrer">Open source ↗</a>}</aside></div>}
+ </div>;
 }
