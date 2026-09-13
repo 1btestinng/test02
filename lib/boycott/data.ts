@@ -3,6 +3,7 @@ import type {BoycottCategory,BoycottEntry,BoycottVisibility} from './types';
 export const SOURCE_URL='https://www.is-boycott.com/en/all/companies';
 export const SOURCE_LABEL='Is-Boycott company database';
 export const BDS_URL='https://bdsmovement.net/Guide-to-BDS-Boycott';
+export const DATASET_POLICY='Source-backed company inclusion; visibility is an editorial consumer-prominence ranking and must not be presented as audited sales data.';
 
 export const CATEGORY_LABELS:Record<BoycottCategory,string>={food:'Food & Restaurants',beverages:'Beverages',grocery:'Grocery & Supermarkets',fashion:'Fashion & Clothing',beauty:'Beauty & Personal Care',household:'Household',baby:'Baby & Family',technology:'Technology',software:'Software & Internet',finance:'Finance & Banking',travel:'Travel & Hospitality',automotive:'Transportation & Automotive',energy:'Energy',media:'Entertainment & Media',healthcare:'Healthcare & Pharmaceuticals',industrial:'Industrial',construction:'Construction & Real Estate',agriculture:'Agriculture',logistics:'Logistics',retail:'Retail',other:'Other'};
 
