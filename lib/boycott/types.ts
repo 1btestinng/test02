@@ -1,25 +1,10 @@
 export type BoycottCategory =
-  | 'food'
-  | 'beverages'
-  | 'grocery'
-  | 'fashion'
-  | 'beauty'
-  | 'household'
-  | 'baby'
-  | 'technology'
-  | 'software'
-  | 'finance'
-  | 'travel'
-  | 'automotive'
-  | 'energy'
-  | 'media'
-  | 'healthcare'
-  | 'industrial'
-  | 'construction'
-  | 'agriculture'
-  | 'logistics'
-  | 'retail'
-  | 'other';
+  | 'food' | 'beverages' | 'grocery' | 'fashion' | 'beauty' | 'household' | 'baby'
+  | 'technology' | 'software' | 'finance' | 'travel' | 'automotive' | 'energy'
+  | 'media' | 'healthcare' | 'industrial' | 'construction' | 'agriculture'
+  | 'logistics' | 'retail' | 'other';
+
+export type BoycottVisibility = 'very-high' | 'high' | 'medium' | 'low';
 
 export type BoycottEntry = {
   id: string;
@@ -39,4 +24,6 @@ export type BoycottEntry = {
   date?: string;
   confidence?: 'high' | 'medium' | 'low';
   campaignType?: string;
+  visibility?: BoycottVisibility;
+  visibilityScore?: number;
 };
