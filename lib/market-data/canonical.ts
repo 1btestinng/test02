@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { getMarketCompaniesSync, getMarketSummarySync, getMarketStatusSync, hasMarket, rankMarketCompanies } from '@/lib/markets/registry';
 import type { MarketCompany, MarketSummary } from '@/lib/markets/types';
+import { ConfiguredAlgeriaHttpProvider } from './algeria-provider';
 import { ConfiguredMoroccoHttpProvider } from './morocco-provider';
 import { ConfiguredTunisiaHttpProvider } from './tunisia-provider';
 
@@ -13,7 +14,13 @@ function snapshotMeta(market: string, summary: MarketSummary): CanonicalMeta {
 }
 
 async function getConfiguredRows(market: string): Promise<CanonicalResponse<MarketCompany[]> | undefined> {
-  const provider = market === 'MA' ? new ConfiguredMoroccoHttpProvider() : market === 'TN' ? new ConfiguredTunisiaHttpProvider() : undefined;
+  const provider = market === 'MA'
+    ? new ConfiguredMoroccoHttpProvider()
+    : market === 'TN'
+      ? new ConfiguredTunisiaHttpProvider()
+      : market === 'DZ'
+        ? new ConfiguredAlgeriaHttpProvider()
+        : undefined;
   if (!provider?.isConfigured()) return undefined;
   const data = rankMarketCompanies(await provider.getCompanies());
   if (data.length === 0) throw new Error(`Configured ${market} provider returned no observations.`);
@@ -60,9 +67,8 @@ export async function getCanonicalMarketSummary(marketCode: string): Promise<Can
     const { data, meta } = configured;
     const totalLocal = data.reduce((sum, row) => sum + (row.marketCapLocal ?? 0), 0);
     const totalUSD = data.reduce((sum, row) => sum + (row.marketCapUSD ?? 0), 0);
-    const fxRate = data.find((row) => row.marketCapLocal && row.marketCapUSD)?.marketCapLocal && data.find((row) => row.marketCapLocal && row.marketCapUSD)?.marketCapUSD
-      ? (data.find((row) => row.marketCapLocal && row.marketCapUSD)!.marketCapLocal! / data.find((row) => row.marketCapLocal && row.marketCapUSD)!.marketCapUSD!)
-      : undefined;
+    const fxRow = data.find((row) => row.marketCapLocal !== undefined && row.marketCapUSD !== undefined && row.marketCapUSD > 0);
+    const fxRate = fxRow ? fxRow.marketCapLocal! / fxRow.marketCapUSD! : undefined;
     const summary: MarketSummary = { count: data.length, totalLocal, totalUSD, industries: new Set(data.map((row) => row.sector).filter(Boolean)).size, fxRate, fxSource: meta.source, lastUpdated: meta.asOf, dataSource: meta.source, delay: meta.delay };
     return { data: summary, meta };
   }
